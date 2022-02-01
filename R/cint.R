@@ -13,7 +13,11 @@
 #' cint(demo, .05, "Two")
 #' @export
 
-cint <- function(data, sig = .05, tail = "Left"){
+cint <- function(data, sig = .05, tail = c("Two", "Left", "Right")){
+
+  stopifnot(sig > 0 & sig < 1)
+  tail <- match.arg(tail)
+
   num <- nrow(data)
 
   if (tail == "Left"){
@@ -30,7 +34,7 @@ cint <- function(data, sig = .05, tail = "Left"){
     LB <- data$w.i[1+index]
     RT = c(LB, Inf)
     return(RT)
-  } else if (tail == "Two"){
+  } else { # tail == "Two"
     siglevel <- sig/2
     alpha <- ceiling(solve((1/num), siglevel))
     index <- alpha - 1
@@ -40,8 +44,6 @@ cint <- function(data, sig = .05, tail = "Left"){
     Lower <- if(is.na(LB)) -Inf else LB
     CI = c(Lower, Upper)
     return(CI)
-  } else {
-    print("No Valid Interval Specified")
   }
 
 }

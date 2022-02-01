@@ -4,7 +4,7 @@
 \alias{pval}
 \title{pval function}
 \usage{
-pval(data, tail = "Left", value = "m")
+pval(data, tail = c("Two", "Left", "Right"), value = c("m", "s", "d", "w"))
 }
 \arguments{
 \item{data}{The output of dset().}

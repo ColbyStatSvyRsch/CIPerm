@@ -14,7 +14,11 @@
 #' pval(demo, "Left", "s")
 #' @export
 
-pval <- function(data, tail = "Left", value = "m"){
+pval <- function(data, tail = c("Two", "Left", "Right"),
+                 value = c("m", "s", "d", "w")){
+
+  tail <- match.arg(tail)
+  value <- match.arg(value)
 
   num <- nrow(data)
 
@@ -28,13 +32,11 @@ pval <- function(data, tail = "Left", value = "m"){
     pvalsum = sum(data$sum1 > data$sum1[1])/num
     pvalmedian = sum(data$diffmedian > data$diffmedian[1])/num
     pvalwilsum = sum(data$wilsum > data$wilsum[1])/num
-  } else if (tail == "Two") {
+  } else { # tail == "Two"
     pvalmean <- sum(abs(data$diffmean - mean(data$diffmean)) >= abs(data$diffmean[1] - mean(data$diffmean)))/num
     pvalsum <- sum(abs(data$sum1 - mean(data$sum1)) >= abs(data$sum1[1] - mean(data$sum1)))/num
     pvalmedian <- sum(abs(data$diffmedian - mean(data$diffmedian)) >= abs(data$diffmedian[1] - mean(data$diffmedian)))/num
     pvalwilsum <- sum(abs(data$wilsum - mean(data$wilsum)) >= abs(data$wilsum[1] - mean(data$wilsum)))/num
-  } else {
-    print("No Valid Tail Specified")
   }
 
   if (value == "m"){
@@ -43,10 +45,8 @@ pval <- function(data, tail = "Left", value = "m"){
     return(pvalsum)
   } else if (value == "d"){
     return(pvalmedian)
-  } else if (value == "w"){
+  } else { # value == "w"
     return(pvalwilsum)
-  } else{
-    print("No Valid P-Value Requested")
   }
 
 }

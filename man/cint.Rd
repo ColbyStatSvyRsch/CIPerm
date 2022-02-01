@@ -4,7 +4,7 @@
 \alias{cint}
 \title{cint function}
 \usage{
-cint(data, sig = 0.05, tail = "Left")
+cint(data, sig = 0.05, tail = c("Two", "Left", "Right"))
 }
 \arguments{
 \item{data}{The output of dset().}
