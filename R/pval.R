@@ -14,6 +14,9 @@
 #' pval(demo, "Left", "s")
 #' @export
 
+
+# TODO: Are we sure we want <= for left tail, but only > for right tail?
+
 pval <- function(data, tail = c("Two", "Left", "Right"),
                  value = c("m", "s", "d", "w")){
 

@@ -1,0 +1,58 @@
+---
+title: "Replicating Nguyen (2009) with `CIPerm`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{nguyen}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+We show that our package replicates the analyses in Nguyen (2009).
+
+
+First, input the data from Table 1:
+
+```{r setup}
+library(CIPerm)
+x <- c(19, 22, 25, 26)
+y <- c(23, 33, 40)
+```
+
+Replicate Table 2 along with the three extra columns from Table 3:
+
+```{r table2}
+demo <- dset(x, y)
+knitr::kable(demo)
+```
+
+Replicate the left-tailed p-values reported on pages 5-6.  
+The first three should be `0.08571429`, and the last should be `0.1142857`.
+
+```{r pval}
+# Difference in means
+pval(demo, "Left", "m")
+
+# Sum of treatment group
+pval(demo, "Left", "s")
+
+# Difference in medians
+pval(demo, "Left", "d")
+
+# Wilcoxon rank sum statistic
+pval(demo, "Left", "w")
+```
+
+Replicate the confidence interval (left-tailed, with confidence level $(1 - \frac{2}{35})\times 100\% \approx 94.3\%$) reported on page 11.  
+This should be `c(-Inf, 2)`.
+
+```{r cint}
+cint(demo, 2/35, "Left")
+```
+
