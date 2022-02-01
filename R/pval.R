@@ -1,7 +1,18 @@
-# pval function
-
-# IDK what I'm supposed to put here
-
+#' pval function
+#'
+#' Calculate p-value from permutation test...
+#'
+#' @param data The output of dset().
+#' @param tail Which tail? Either "Left" or "Right" or "Two"-tailed test.
+#' @param value Either "m" for difference in means, "s" for sum of Group 1 values,
+#'     "d" for difference in medians, or "w" for Wilcoxon rank sum statistic.
+#' @return Numeric p-value for the selected type of test.
+#' @examples
+#' x <- c(19, 22, 25, 26)
+#' y <- c(23, 33, 40)
+#' demo <- dset(x, y)
+#' pval(demo, "Left", "s")
+#' @export
 
 pval <- function(data, tail = "Left", value = "m"){
 

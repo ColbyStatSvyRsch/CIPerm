@@ -1,8 +1,17 @@
-# dset function
-
-# IDK what else I'm supposed to put...
-
-
+#' dset function
+#'
+#' Calculate table of differences in means etc. for each permutation,
+#' as needed in order to compute a p-value and/or confidence interval...
+#'
+#' @param group1 Vector of values for first group.
+#' @param group2 Vector of values for second group.
+#' @return A data frame(?) ready to be used in cint() or pval().
+#' @examples
+#' x <- c(19, 22, 25, 26)
+#' y <- c(23, 33, 40)
+#' demo <- dset(x, y)
+#' print(demo)
+#' @export
 
 dset <- function(group1, group2){
   # creates the dataset referenced in pval and cint
@@ -13,7 +22,7 @@ dset <- function(group1, group2){
   N <- n + m
   num <- choose(N, n)
   den <- (1/n + 1/m)
-  dcombn <- combn(1:N, n)
+  dcombn <- utils::combn(1:N, n)
 
   if (num > 10000) {
     sample <- sample(num, 10000)
@@ -41,7 +50,7 @@ dset <- function(group1, group2){
 
     dataframe$diffmean[ii] = round(mean(combined[g1ind]) - mean(combined[g2ind]), digits = 2)
     dataframe$sum1[ii] = sum(combined[g1ind])
-    dataframe$diffmedian[ii] = median(combined[g1ind]) - median(combined[g2ind])
+    dataframe$diffmedian[ii] = stats::median(combined[g1ind]) - stats::median(combined[g2ind])
 
     r <- rank(combined, ties.method = "first")
     rsum <- sum(r[g1ind])

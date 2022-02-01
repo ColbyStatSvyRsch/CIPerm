@@ -1,7 +1,17 @@
-# cint function
-
-# IDK what I'm supposed to put here...
-
+#' cint function
+#'
+#' Calculate confidence interval from permutation test...
+#'
+#' @param data The output of dset().
+#' @param sig Significance level (default 0.05 corresponds to 95\% confidence level).
+#' @param tail Which tail? Either "Left" or "Right" or "Two"-tailed interval.
+#' @return Numeric vector with the CI's two endpoints.
+#' @examples
+#' x <- c(19, 22, 25, 26)
+#' y <- c(23, 33, 40)
+#' demo <- dset(x, y)
+#' cint(demo, .05, "Two")
+#' @export
 
 cint <- function(data, sig = .05, tail = "Left"){
   num <- nrow(data)
