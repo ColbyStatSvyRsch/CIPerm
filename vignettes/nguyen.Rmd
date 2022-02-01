@@ -16,10 +16,11 @@ knitr::opts_chunk$set(
 
 We show that our package replicates the analyses in Nguyen (2009).
 
+# Recovery times example
 
-First, input the data from Table 1:
+Input the data from Table 1:
 
-```{r setup}
+```{r setup1}
 library(CIPerm)
 x <- c(19, 22, 25, 26)
 y <- c(23, 33, 40)
@@ -29,13 +30,13 @@ Replicate Table 2 along with the three extra columns from Table 3:
 
 ```{r table2}
 demo <- dset(x, y)
-knitr::kable(demo)
+knitr::kable(demo, digits = 2)
 ```
 
 Replicate the left-tailed p-values reported on pages 5-6.  
 The first three should be `0.08571429`, and the last should be `0.1142857`.
 
-```{r pval}
+```{r pvals.p6}
 # Difference in means
 pval(demo, "Left", "m")
 
@@ -52,7 +53,39 @@ pval(demo, "Left", "w")
 Replicate the confidence interval (left-tailed, with confidence level $(1 - \frac{2}{35})\times 100\% \approx 94.3\%$) reported on page 11.  
 This should be `c(-Inf, 2)`.
 
-```{r cint}
+```{r cint.p11}
 cint(demo, 2/35, "Left")
+```
+
+
+
+# Wing lengths and antennae lengths example
+
+Input and process the data from Table 4:
+
+```{r setup2}
+wl1 <- c(1.72, 1.64, 1.74, 1.70, 1.82, 1.82, 1.90, 1.82, 2.08)
+wl2 <- c(1.78, 1.86, 1.96, 2.00, 2.00, 1.96)
+wl <- dset(wl1, wl2)
+
+al1 <- c(1.24, 1.38, 1.36, 1.40, 1.38, 1.48, 1.38, 1.54, 1.56)
+al2 <- c(1.14, 1.20, 1.30, 1.26, 1.28, 1.18)
+al <- dset(al1, al2)
+```
+
+Replicate the two-sided p-values from page 14, using the sum-of-group-1 test statistic.  
+The p-values should be `0.07172827` for wing lengths, and `0.002197802` for antennae lengths.
+
+```{r pvals.p14}
+pval(wl, "Two", "s")
+pval(al, "Two", "s")
+```
+
+Replicate the two-sided 94.90\% CIs for the mean difference from page 15.  
+The CIs should be `c(-0.246, 0.01)` for wing lengths, and `c(0.087, 0.285)` for antennae lengths.
+
+```{r cint.p15}
+cint(wl, 1-.9490, "Two")
+cint(al, 1-.9490, "Two")
 ```
 

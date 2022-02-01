@@ -22,5 +22,5 @@ as needed in order to compute a p-value and/or confidence interval...
 x <- c(19, 22, 25, 26)
 y <- c(23, 33, 40)
 demo <- dset(x, y)
-print(demo)
+knitr::kable(demo, digits = 2)
 }

@@ -10,7 +10,7 @@
 #' x <- c(19, 22, 25, 26)
 #' y <- c(23, 33, 40)
 #' demo <- dset(x, y)
-#' print(demo)
+#' knitr::kable(demo, digits = 2)
 #' @export
 
 
@@ -50,9 +50,7 @@ dset <- function(group1, group2){
     group1_perm[,ii] <- combined[g1ind]
     group2_perm[,ii] <- combined[g2ind]
 
-    # TODO: here and later, remove round(),
-    # and instead only apply it when printing tables in examples and vignettes
-    dataframe$diffmean[ii] = round(mean(combined[g1ind]) - mean(combined[g2ind]), digits = 2)
+    dataframe$diffmean[ii] = mean(combined[g1ind]) - mean(combined[g2ind])
     dataframe$sum1[ii] = sum(combined[g1ind])
     dataframe$diffmedian[ii] = stats::median(combined[g1ind]) - stats::median(combined[g2ind])
 
@@ -60,7 +58,7 @@ dset <- function(group1, group2){
     rsum <- sum(r[g1ind])
     dataframe$wilsum[ii] = rsum
     dataframe$k[ii] = sum(!(g1ind %in% 1:n))  ## TODO: change to sum(g1ind > n) if faster?
-    dataframe$wkd[ii] = round((dataframe$diffmean[1] - dataframe$diffmean[ii]) / (dataframe$k[ii] * den), digits = 2)
+    dataframe$wkd[ii] = (dataframe$diffmean[1] - dataframe$diffmean[ii]) / (dataframe$k[ii] * den)
   }
 
   w.i <- sort(dataframe$wkd, decreasing = FALSE, na.last = FALSE)
