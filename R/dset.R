@@ -14,6 +14,12 @@
 #' @export
 
 
+# TODO: add an argument like `B` in fisher.test()
+# or `nmc` in exact2x2::binomMeld.test()
+# that lets user choose complete vs monte carlo:
+# if nmc==0, force complete enumeration;
+# else if choose(N,n)>nmc, do Monte Carlo, but if <= nmc, do complete enum.
+
 dset <- function(group1, group2){
   # creates the dataset referenced in pval and cint
   combined <- c(group1, group2)
@@ -24,7 +30,11 @@ dset <- function(group1, group2){
   num <- choose(N, n)
   den <- (1/n + 1/m)
   dcombn <- utils::combn(1:N, n) # TODO: if num is huge, don't run this yet;
-  # instead, take a subset more cleverly/randomly
+  # instead, take a subset more cleverly/randomly!
+  # TODO: in the future, consider switching to RcppAlgos::comboSample(),
+  # but for now let's start with just using base sample()
+  # (even though it gives permutations, not only unique combinations)...
+  #
 
   if (num > 10000) {
     sample <- sample(num, 10000)
