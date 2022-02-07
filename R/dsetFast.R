@@ -1,5 +1,6 @@
-#' dset function
+#' dsetFast function
 #'
+#' DRAFT of faster version of \code{dset()}:
 #' Calculate table of differences in means etc. for each
 #' combination (or permutation if using Monte Carlo approx.),
 #' as needed in order to compute a p-value and/or confidence interval...
@@ -31,7 +32,7 @@
 #  we'll need to handle multiple perms equivalent to original data grouping).
 
 
-dset <- function(group1, group2, nmc = 10000){
+dsetFast <- function(group1, group2, nmc = 10000){
   stopifnot(nmc >= 0)
   # TODO: add more error checks:
   #   nmc must be a non-neg integer, not 1, & not too small relative to n,m(?);
@@ -54,42 +55,26 @@ dset <- function(group1, group2, nmc = 10000){
     num <- nmc
   }
 
-  dataframe <- data.frame(diffmean = rep(NA, num),
-                          sum1 = rep(NA, num),
-                          diffmedian = rep(NA, num),
-                          wilsum = rep(NA, num),
-                          k = rep(NA, num),
-                          wkd = rep(NA, num))
+  dcombn2 <- apply(dc, 2, function(x) setdiff(1:9, x))
+  group1_perm <- combined[dcombn]
+  group2_perm <- combined[dcombn2]
 
-  group1_perm <- matrix(NA, n, num)
-  group2_perm <- matrix(NA, m, num)
+  k <- colSums(matrix(dcombn %in% ((n+1):N), nrow=n))
+  diffmean <- colMeans(group1_perm) - colMeans(group2_perm)
+  sum1 <- colSums(group1_perm)
+  diffmedian <- matrixStats::colMedians(group1_perm) - matrixStats::colMedians(group2_perm)
 
-  for (ii in 1:num){ # TODO: can we get rid of loop somehow? should be much faster...
+  r <- rank(combined, ties.method = "first")
+  wilsum <- colSums(r[dcombn])
+  wkd = (diffmean[1] - diffmean) / (k * den)
 
-    # TODO: draft code for removing the loop...
-    # dc <- combn(9, 5)[, 1:10]
-    # k <- colSums(matrix(dc %in% (6:9), nrow=5))
-    # dc_g2 <- apply(dc, 2, function(x) setdiff(1:9, x))
-    # # ?? is there a setdiff() version w/o apply? can't find one,
-    # #    and stackoverflow suggests the code I just wrote...
-    # # the rest of these should now be doable by calling colMeans, colMedians, etc
+  dataframe <- data.frame(diffmean = diffmean,
+                          sum1 = sum1,
+                          diffmedian = diffmedian,
+                          wilsum = wilsum,
+                          k = k,
+                          wkd = wkd)
 
-    g1ind = dcombn[,ii]
-    g2ind = (1:N)[-g1ind]
-
-    group1_perm[,ii] <- combined[g1ind]
-    group2_perm[,ii] <- combined[g2ind]
-
-    dataframe$diffmean[ii] = mean(combined[g1ind]) - mean(combined[g2ind])
-    dataframe$sum1[ii] = sum(combined[g1ind])
-    dataframe$diffmedian[ii] = stats::median(combined[g1ind]) - stats::median(combined[g2ind])
-
-    r <- rank(combined, ties.method = "first")
-    rsum <- sum(r[g1ind])
-    dataframe$wilsum[ii] = rsum
-    dataframe$k[ii] = sum(!(g1ind %in% 1:n))  ## TODO: change to sum(g1ind > n) if faster?
-    dataframe$wkd[ii] = (dataframe$diffmean[1] - dataframe$diffmean[ii]) / (dataframe$k[ii] * den)
-  }
 
   w.i <- sort(dataframe$wkd, decreasing = FALSE, na.last = FALSE)
   ID <- c(1:num)
