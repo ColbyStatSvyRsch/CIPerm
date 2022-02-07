@@ -4,18 +4,26 @@
 \alias{dset}
 \title{dset function}
 \usage{
-dset(group1, group2)
+dset(group1, group2, nmc = 10000)
 }
 \arguments{
 \item{group1}{Vector of values for first group.}
 
 \item{group2}{Vector of values for second group.}
+
+\item{nmc}{Threshold for whether to use Monte Carlo draws or complete
+enumeration. If the number of all possible combinations
+\code{choose(n1+n2, n1) <= nmc}, we use complete enumeration.
+Otherwise, we take a Monte Carlo sample of \code{nmc} permutations.
+You can set \code{nmc = 0} to force complete enumeration regardless of
+how many combinations there are.}
 }
 \value{
-A data frame(?) ready to be used in cint() or pval().
+A data frame ready to be used in \code{cint()} or \code{pval()}.
 }
 \description{
-Calculate table of differences in means etc. for each permutation,
+Calculate table of differences in means etc. for each
+combination (or permutation if using Monte Carlo approx.),
 as needed in order to compute a p-value and/or confidence interval...
 }
 \examples{

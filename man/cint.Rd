@@ -7,7 +7,7 @@
 cint(data, sig = 0.05, tail = c("Two", "Left", "Right"))
 }
 \arguments{
-\item{data}{The output of dset().}
+\item{data}{The output of \code{dset()}.}
 
 \item{sig}{Significance level (default 0.05 corresponds to 95\% confidence level).}
 

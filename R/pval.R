@@ -2,7 +2,7 @@
 #'
 #' Calculate p-value from permutation test...
 #'
-#' @param data The output of dset().
+#' @param data The output of \code{dset()}.
 #' @param tail Which tail? Either "Left" or "Right" or "Two"-tailed test.
 #' @param value Either "m" for difference in means, "s" for sum of Group 1 values,
 #'     "d" for difference in medians, or "w" for Wilcoxon rank sum statistic.

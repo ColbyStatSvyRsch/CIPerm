@@ -7,7 +7,7 @@
 pval(data, tail = c("Two", "Left", "Right"), value = c("m", "s", "d", "w"))
 }
 \arguments{
-\item{data}{The output of dset().}
+\item{data}{The output of \code{dset()}.}
 
 \item{tail}{Which tail? Either "Left" or "Right" or "Two"-tailed test.}
 

@@ -82,10 +82,27 @@ pval(al, "Two", "s")
 ```
 
 Replicate the two-sided 94.90\% CIs for the mean difference from page 15.  
-The CIs should be `c(-0.246, 0.01)` for wing lengths, and `c(0.087, 0.285)` for antennae lengths.
+The CIs should be around `c(-0.246, 0.01)` for wing lengths, and around `c(0.087, 0.285)` for antennae lengths.
 
 ```{r cint.p15}
 cint(wl, 1-.9490, "Two")
 cint(al, 1-.9490, "Two")
 ```
 
+
+## Wing and antennae lengths with Monte Carlo
+
+Repeat the above analysis,
+but using 5000 Monte Carlo draws from all possible permutations
+instead of using all ${9+6 \choose 9} = 5005$ possible combinations.
+These results won't exactly match those above, but they should be fairly close.
+
+
+```{r montecarlo}
+wl <- dset(wl1, wl2, nmc = 5000)
+al <- dset(al1, al2, nmc = 5000)
+pval(wl, "Two", "s")
+pval(al, "Two", "s")
+cint(wl, 1-.9490, "Two")
+cint(al, 1-.9490, "Two")
+```
