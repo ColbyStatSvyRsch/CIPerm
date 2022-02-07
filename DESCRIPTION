@@ -1,8 +1,8 @@
 Package: CIPerm
 Type: Package
 Title: Creating CIs for Mean Shift from Permutation Tests
-Version: 0.1.0.9000
-Date: 2022-02-01
+Version: 0.1.0.9001
+Date: 2022-02-07
 Authors@R: c(
     person("Emily", "Tupaj", email = "emily.tupaj@colby.edu", role = "aut"),
     person("Jerzy", "Wieczorek", email = "jawieczo@colby.edu", role = c("cre", "aut")))
