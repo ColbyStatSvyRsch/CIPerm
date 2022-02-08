@@ -21,6 +21,27 @@
 #' knitr::kable(demo, digits = 2)
 #' @export
 
+## TODO: replace dset() with this faster version.
+## Skipping the for loop gives a 7x speedup over our original dset():
+##
+# > x <- c(19, 22, 25, 26)
+# > y <- c(23, 33, 40)
+# > microbenchmark::microbenchmark(dset(x, y), dsetFast(x, y), times = 1000)
+# Unit: microseconds
+#           expr      min       lq     mean   median       uq       max neval
+#     dset(x, y) 6276.401 6790.501 7715.261 7210.501 7910.150 51722.501  1000
+# dsetFast(x, y)  901.101 1060.551 1215.499 1141.201 1238.651  4548.201  1000
+##
+## And it does seem to give the same result!
+## (though let's check this on other datasets too,
+##  and let's check Monte Carlo runs with set.seed()...)
+##
+# > demo <- dset(x, y)
+# > demo2 <- dsetFast(x, y)
+# > all.equal(demo, demo2)
+# [1] TRUE
+
+
 
 # TODO: in the future, consider switching to RcppAlgos::comboSample(),
 # which lets you sample *directly* from the set of all possible combinations
@@ -55,9 +76,9 @@ dsetFast <- function(group1, group2, nmc = 10000){
     num <- nmc
   }
 
-  dcombn2 <- apply(dc, 2, function(x) setdiff(1:9, x))
-  group1_perm <- combined[dcombn]
-  group2_perm <- combined[dcombn2]
+  dcombn2 <- apply(dcombn, 2, function(x) setdiff(1:N, x))
+  group1_perm <- matrix(combined[dcombn], nrow = n)
+  group2_perm <- matrix(combined[dcombn2], nrow = m)
 
   k <- colSums(matrix(dcombn %in% ((n+1):N), nrow=n))
   diffmean <- colMeans(group1_perm) - colMeans(group2_perm)
@@ -65,7 +86,7 @@ dsetFast <- function(group1, group2, nmc = 10000){
   diffmedian <- matrixStats::colMedians(group1_perm) - matrixStats::colMedians(group2_perm)
 
   r <- rank(combined, ties.method = "first")
-  wilsum <- colSums(r[dcombn])
+  wilsum <- colSums(matrix(r[dcombn], nrow = n))
   wkd = (diffmean[1] - diffmean) / (k * den)
 
   dataframe <- data.frame(diffmean = diffmean,

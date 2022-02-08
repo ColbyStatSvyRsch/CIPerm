@@ -2,6 +2,7 @@
 
 export(cint)
 export(dset)
+export(dsetFast)
 export(pval)
 importFrom(stats,median)
 importFrom(utils,combn)
