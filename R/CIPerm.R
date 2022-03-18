@@ -37,6 +37,7 @@
 #'   Reference Distribution and their Monte-Carlo Approximation"
 #'   [unpublished MS thesis], Portland State University.
 
+#' @importFrom matrixStats colMedians
 #' @importFrom stats median
 #' @importFrom utils combn
 #'
