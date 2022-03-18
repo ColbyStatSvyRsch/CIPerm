@@ -13,16 +13,19 @@
 #'   Otherwise, we take a Monte Carlo sample of \code{nmc} permutations.
 #'   You can set \code{nmc = 0} to force complete enumeration regardless of
 #'   how many combinations there are.
+#' @param returnData Whether the returned dataframe should include columns for
+#'   the permuted data itself (if TRUE), or only the derived columns that are
+#'   needed for confidence intervals and p-values (if FALSE, default).
 #' @return A data frame ready to be used in \code{cint()} or \code{pval()}.
 #' @examples
 #' x <- c(19, 22, 25, 26)
 #' y <- c(23, 33, 40)
-#' demo <- dset(x, y)
+#' demo <- dsetFast(x, y, returnData = TRUE)
 #' knitr::kable(demo, digits = 2)
 #' @export
 
 ## TODO: replace dset() with this faster version.
-## Skipping the for loop gives a 7x speedup over our original dset():
+## Skipping the for loop gives a ~7x speedup over our original dset():
 ##
 # > x <- c(19, 22, 25, 26)
 # > y <- c(23, 33, 40)
@@ -42,6 +45,23 @@
 # [1] TRUE
 
 
+## What about the larger groups of 6+9 obs instead of 4+3 obs?
+# > wl1 <- c(1.72, 1.64, 1.74, 1.70, 1.82, 1.82, 1.90, 1.82, 2.08)
+# > wl2 <- c(1.78, 1.86, 1.96, 2.00, 2.00, 1.96)
+# > microbenchmark::microbenchmark(dset(wl1, wl2), dsetFast(wl1, wl2), times = 50)
+# Unit: milliseconds
+#               expr       min       lq       mean     median        uq       max neval
+#     dset(wl1, wl2) 1138.0176 1226.140 1278.69760 1278.08755 1327.2168 1438.2427    50
+# dsetFast(wl1, wl2)   43.3406   47.194   50.46918   49.85155   52.8262   77.2373    50
+# > demo <- dset(wl1, wl2)
+# > demo2 <- dsetFast(wl1, wl2)
+# > all.equal(demo, demo2)
+# [1] TRUE
+## OH WOW, this is 25x faster now.
+## Plain dset() takes ~1sec each time, while dsetFast() is ~0.05sec.
+## I imagine the diffs will only get more extreme for larger datasets.
+
+
 
 # TODO: in the future, consider switching to RcppAlgos::comboSample(),
 # which lets you sample *directly* from the set of all possible combinations
@@ -53,7 +73,7 @@
 #  we'll need to handle multiple perms equivalent to original data grouping).
 
 
-dsetFast <- function(group1, group2, nmc = 10000){
+dsetFast <- function(group1, group2, nmc = 10000, returnData = FALSE){
   stopifnot(nmc >= 0)
   # TODO: add more error checks:
   #   nmc must be a non-neg integer, not 1, & not too small relative to n,m(?);
@@ -96,10 +116,17 @@ dsetFast <- function(group1, group2, nmc = 10000){
                           k = k,
                           wkd = wkd)
 
+  if(returnData){
+    # Return the whole table formatted as in Nguyen (2009)
+    # for comparison with his results
+    w.i <- sort(dataframe$wkd, decreasing = FALSE, na.last = FALSE)
+    ID <- c(1:num)
+    dataset <- t(rbind(group1_perm, group2_perm))
+    datatable <- cbind(ID, dataset, dataframe, w.i)
+    return(datatable)
+  } else {
+    # Just return the fewest columns needed for p-vals and CIs
+    return(dataframe)
+  }
 
-  w.i <- sort(dataframe$wkd, decreasing = FALSE, na.last = FALSE)
-  ID <- c(1:num)
-  dataset <- t(rbind(group1_perm, group2_perm))
-  datatable <- cbind(ID, dataset, dataframe, w.i)
-  return(datatable)
 }

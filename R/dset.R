@@ -12,14 +12,20 @@
 #'   Otherwise, we take a Monte Carlo sample of \code{nmc} permutations.
 #'   You can set \code{nmc = 0} to force complete enumeration regardless of
 #'   how many combinations there are.
+#' @param returnData Whether the returned dataframe should include columns for
+#'   the permuted data itself (if TRUE), or only the derived columns that are
+#'   needed for confidence intervals and p-values (if FALSE, default).
 #' @return A data frame ready to be used in \code{cint()} or \code{pval()}.
 #' @examples
 #' x <- c(19, 22, 25, 26)
 #' y <- c(23, 33, 40)
-#' demo <- dset(x, y)
+#' demo <- dset(x, y, returnData = TRUE)
 #' knitr::kable(demo, digits = 2)
 #' @export
 
+
+# TODO: can we get rid of loop somehow? should be much faster...
+#   YES, see dsetFast.R instead!
 
 # TODO: in the future, consider switching to RcppAlgos::comboSample(),
 # which lets you sample *directly* from the set of all possible combinations
@@ -31,7 +37,7 @@
 #  we'll need to handle multiple perms equivalent to original data grouping).
 
 
-dset <- function(group1, group2, nmc = 10000){
+dset <- function(group1, group2, nmc = 10000, returnData = FALSE){
   stopifnot(nmc >= 0)
   # TODO: add more error checks:
   #   nmc must be a non-neg integer, not 1, & not too small relative to n,m(?);
@@ -64,15 +70,7 @@ dset <- function(group1, group2, nmc = 10000){
   group1_perm <- matrix(NA, n, num)
   group2_perm <- matrix(NA, m, num)
 
-  for (ii in 1:num){ # TODO: can we get rid of loop somehow? should be much faster...
-
-    # TODO: draft code for removing the loop...
-    # dc <- combn(9, 5)[, 1:10]
-    # k <- colSums(matrix(dc %in% (6:9), nrow=5))
-    # dc_g2 <- apply(dc, 2, function(x) setdiff(1:9, x))
-    # # ?? is there a setdiff() version w/o apply? can't find one,
-    # #    and stackoverflow suggests the code I just wrote...
-    # # the rest of these should now be doable by calling colMeans, colMedians, etc
+  for (ii in 1:num){
 
     g1ind = dcombn[,ii]
     g2ind = (1:N)[-g1ind]
@@ -91,9 +89,14 @@ dset <- function(group1, group2, nmc = 10000){
     dataframe$wkd[ii] = (dataframe$diffmean[1] - dataframe$diffmean[ii]) / (dataframe$k[ii] * den)
   }
 
-  w.i <- sort(dataframe$wkd, decreasing = FALSE, na.last = FALSE)
-  ID <- c(1:num)
-  dataset <- t(rbind(group1_perm, group2_perm))
-  datatable <- cbind(ID, dataset, dataframe, w.i)
-  return(datatable)
+  if(returnData){
+    w.i <- sort(dataframe$wkd, decreasing = FALSE, na.last = FALSE)
+    ID <- c(1:num)
+    dataset <- t(rbind(group1_perm, group2_perm))
+    datatable <- cbind(ID, dataset, dataframe, w.i)
+    return(datatable)
+  } else {
+    # Just return the fewest columns needed for p-vals and CIs
+    return(dataframe)
+  }
 }

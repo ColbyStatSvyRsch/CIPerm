@@ -31,6 +31,8 @@ cint <- function(data, sig = .05, tail = c("Two", "Left", "Right")){
 
   num <- nrow(data)
 
+  w.i <- sort(data$wkd, decreasing = FALSE, na.last = FALSE)
+
   # TODO: keep an eye on how we use w.i,
   #   because if dset's nmc leads us to use Monte Carlo sims,
   #   we may get some permutations equivalent to orig data
@@ -43,21 +45,21 @@ cint <- function(data, sig = .05, tail = c("Two", "Left", "Right")){
   if (tail == "Left"){
     siglevel <- sig
     index <- ceiling(siglevel*num) - 1
-    UB <- data$w.i[(num-index)]
+    UB <- w.i[(num-index)]
     LT = c(-Inf, UB)
     return(LT)
   } else if (tail == "Right"){
     siglevel <- sig
     index <- ceiling(siglevel*num) - 1
-    LB <- data$w.i[1+nk0+index] # starts counting from the (1+nk0)'th row of data
+    LB <- w.i[1+nk0+index] # starts counting from the (1+nk0)'th row of data
     # (not the first (original) which will always be 'NaN')
     RT = c(LB, Inf)
     return(RT)
   } else { # tail == "Two"
     siglevel <- sig/2  # use half of sig in each tail
     index <- ceiling(siglevel*num) - 1
-    UB <- data$w.i[(num-index)]
-    LB <- data$w.i[1+nk0+index] # starts counting from the (1+nk0)'th row of data
+    UB <- w.i[(num-index)]
+    LB <- w.i[1+nk0+index] # starts counting from the (1+nk0)'th row of data
     # (not the first (original) which will always be 'NaN')
     Upper <- if(is.na(UB)) Inf else UB
     Lower <- if(is.na(LB)) -Inf else LB

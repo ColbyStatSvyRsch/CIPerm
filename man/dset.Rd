@@ -4,7 +4,7 @@
 \alias{dset}
 \title{dset function}
 \usage{
-dset(group1, group2, nmc = 10000)
+dset(group1, group2, nmc = 10000, returnData = FALSE)
 }
 \arguments{
 \item{group1}{Vector of values for first group.}
@@ -17,6 +17,10 @@ enumeration. If the number of all possible combinations
 Otherwise, we take a Monte Carlo sample of \code{nmc} permutations.
 You can set \code{nmc = 0} to force complete enumeration regardless of
 how many combinations there are.}
+
+\item{returnData}{Whether the returned dataframe should include columns for
+the permuted data itself (if TRUE), or only the derived columns that are
+needed for confidence intervals and p-values (if FALSE, default).}
 }
 \value{
 A data frame ready to be used in \code{cint()} or \code{pval()}.
@@ -29,6 +33,6 @@ as needed in order to compute a p-value and/or confidence interval...
 \examples{
 x <- c(19, 22, 25, 26)
 y <- c(23, 33, 40)
-demo <- dset(x, y)
+demo <- dset(x, y, returnData = TRUE)
 knitr::kable(demo, digits = 2)
 }
