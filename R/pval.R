@@ -4,14 +4,19 @@
 #'
 #' @param data The output of \code{dset()}.
 #' @param tail Which tail? Either "Left" or "Right" or "Two"-tailed test.
-#' @param value Either "m" for difference in means, "s" for sum of Group 1 values,
-#'     "d" for difference in medians, or "w" for Wilcoxon rank sum statistic.
-#' @return Numeric p-value for the selected type of test.
+#' @param value Either "m" for difference in means (default),
+#'     "s" for sum of Group 1 values,
+#'     "d" for difference in medians,
+#'     or "w" for Wilcoxon rank sum statistic;
+#'     or "a" for a named vector of all four p-values.
+#' @return Numeric p-value for the selected type of test,
+#'     or a named vector of all four p-values if \code{value="a"}.
 #' @examples
 #' x <- c(19, 22, 25, 26)
 #' y <- c(23, 33, 40)
 #' demo <- dset(x, y)
 #' pval(demo, "Left", "s")
+#' pval(demo, "Left", "a")
 #' @export
 
 
@@ -24,7 +29,7 @@
 
 
 pval <- function(data, tail = c("Two", "Left", "Right"),
-                 value = c("m", "s", "d", "w")){
+                 value = c("m", "s", "d", "w", "a")){
 
   tail <- match.arg(tail)
   value <- match.arg(value)
@@ -54,8 +59,13 @@ pval <- function(data, tail = c("Two", "Left", "Right"),
     return(pvalsum)
   } else if (value == "d"){
     return(pvalmedian)
-  } else { # value == "w"
+  } else if (value == "w"){
     return(pvalwilsum)
+  } else { # value == "a"
+    return(c(m = pvalmean,
+             s = pvalsum,
+             d = pvalmedian,
+             w = pvalwilsum))
   }
 
 }

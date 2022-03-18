@@ -4,18 +4,26 @@
 \alias{pval}
 \title{pval function}
 \usage{
-pval(data, tail = c("Two", "Left", "Right"), value = c("m", "s", "d", "w"))
+pval(
+  data,
+  tail = c("Two", "Left", "Right"),
+  value = c("m", "s", "d", "w", "a")
+)
 }
 \arguments{
 \item{data}{The output of \code{dset()}.}
 
 \item{tail}{Which tail? Either "Left" or "Right" or "Two"-tailed test.}
 
-\item{value}{Either "m" for difference in means, "s" for sum of Group 1 values,
-"d" for difference in medians, or "w" for Wilcoxon rank sum statistic.}
+\item{value}{Either "m" for difference in means (default),
+"s" for sum of Group 1 values,
+"d" for difference in medians,
+or "w" for Wilcoxon rank sum statistic;
+or "a" for a named vector of all four p-values.}
 }
 \value{
-Numeric p-value for the selected type of test.
+Numeric p-value for the selected type of test,
+    or a named vector of all four p-values if \code{value="a"}.
 }
 \description{
 Calculate p-value from permutation test...
@@ -25,4 +33,5 @@ x <- c(19, 22, 25, 26)
 y <- c(23, 33, 40)
 demo <- dset(x, y)
 pval(demo, "Left", "s")
+pval(demo, "Left", "a")
 }
