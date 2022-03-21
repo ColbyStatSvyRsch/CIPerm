@@ -54,13 +54,38 @@
 #               expr       min       lq       mean     median        uq       max neval
 #     dset(wl1, wl2) 1138.0176 1226.140 1278.69760 1278.08755 1327.2168 1438.2427    50
 # dsetFast(wl1, wl2)   43.3406   47.194   50.46918   49.85155   52.8262   77.2373    50
+## OH WOW, this is 25x faster now.
+## Plain dset() takes ~1sec each time, while dsetFast() is ~0.05sec.
+## I imagine the diffs will only get more extreme for larger datasets.
+
+## And they still give same results?
 # > demo <- dset(wl1, wl2)
 # > demo2 <- dsetFast(wl1, wl2)
 # > all.equal(demo, demo2)
 # [1] TRUE
-## OH WOW, this is 25x faster now.
-## Plain dset() takes ~1sec each time, while dsetFast() is ~0.05sec.
-## I imagine the diffs will only get more extreme for larger datasets.
+# > demo <- dset(wl1, wl2, returnData = TRUE)
+# > demo2 <- dsetFast(wl1, wl2, returnData = TRUE)
+# > all.equal(demo, demo2)
+# [1] TRUE
+## Yes they do!
+
+## What about Monte Carlo runs?
+## They don't match without set.seed(), which makes sense...
+# > demo <- dset(wl1, wl2, nmc = 5000)
+# > demo2 <- dsetFast(wl1, wl2, nmc = 5000)
+# > isTRUE(all.equal(demo, demo2))
+# [1] FALSE
+##
+## But WITH set.seed, they DO match!
+# > seed = 20220321
+# > set.seed(seed)
+# > demo <- dset(wl1, wl2, nmc = 5000)
+# > set.seed(seed)
+# > demo2 <- dsetFast(wl1, wl2, nmc = 5000)
+# > all.equal(demo, demo2)
+# [1] TRUE
+
+
 
 
 
