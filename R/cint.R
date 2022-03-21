@@ -9,13 +9,29 @@
 #' @param dset The output of \code{\link{dset}}.
 #' @param conf.level Confidence level (default 0.95 corresponds to 95\% confidence level).
 #' @param tail Which tail? Either "Left" or "Right" or "Two"-tailed interval.
-#' @return Numeric vector with the CI's two endpoints.
+#' @return A list containing the following components:\describe{
+#'   \item{\code{conf.int}}{Numeric vector with the CI's two endpoints.}
+#'   \item{\code{conf.level.achieved}}{Numeric value of the achieved confidence level.}
+#' }
 #' @examples
 #' x <- c(19, 22, 25, 26)
 #' y <- c(23, 33, 40)
 #' demo <- dset(x, y)
 #' cint(demo, .95, "Two")
 #' @export
+
+
+# TODO: Deal with weird rounding issues:
+# I'd like people to enter the desired CONF LEVEL (0.95)
+# instead of equiv SIG LEVEL (0.05)
+# BUT this can lead to one-off rounding issues with ceiling()...
+# such that people actually need to enter e.g. .9501 if they actually want 95% CI
+# > ceiling((.05)*5000) ## good
+# [1] 250
+# > ceiling((1-.95)*5000) ## whoops!
+# [1] 251
+# > ceiling((1-.9501)*5000) ## good again but shouldn't need to do this
+# [1] 250
 
 
 
@@ -43,14 +59,20 @@ cint <- function(dset, conf.level = .95, tail = c("Two", "Left", "Right")){
     index <- ceiling(siglevel*num) - 1
     UB <- w.i[(num-index)]
     LT = c(-Inf, UB)
-    return(LT)
+    conf.achieved = 1-((index+1)/num)
+    message(paste0("Achieved conf. level: 1-(", index+1, "/", num, ")"))
+    return(list(conf.int = LT,
+                conf.level.achieved = conf.achieved))
   } else if (tail == "Right"){
     siglevel <- sig
     index <- ceiling(siglevel*num) - 1
     LB <- w.i[1+nk0+index] # starts counting from the (1+nk0)'th row of dset
     # (not the first (original) which will always be 'NaN')
     RT = c(LB, Inf)
-    return(RT)
+    conf.achieved = 1-((index+1)/num)
+    message(paste0("Achieved conf. level: 1-(", index+1, "/", num, ")"))
+    return(list(conf.int = RT,
+                conf.level.achieved = conf.achieved))
   } else { # tail == "Two"
     siglevel <- sig/2  # use half of sig in each tail
     index <- ceiling(siglevel*num) - 1
@@ -60,7 +82,10 @@ cint <- function(dset, conf.level = .95, tail = c("Two", "Left", "Right")){
     Upper <- if(is.na(UB)) Inf else UB
     Lower <- if(is.na(LB)) -Inf else LB
     CI = c(Lower, Upper)
-    return(CI)
+    conf.achieved = 1-(2*(index+1)/num)
+    message(paste0("Achieved conf. level: 1-2*(", index+1, "/", num, ")"))
+    return(list(conf.int = CI,
+                conf.level.achieved = conf.achieved))
   }
 
 }

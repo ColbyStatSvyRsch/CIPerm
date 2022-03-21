@@ -14,7 +14,10 @@ cint(dset, conf.level = 0.95, tail = c("Two", "Left", "Right"))
 \item{tail}{Which tail? Either "Left" or "Right" or "Two"-tailed interval.}
 }
 \value{
-Numeric vector with the CI's two endpoints.
+A list containing the following components:\describe{
+  \item{\code{conf.int}}{Numeric vector with the CI's two endpoints.}
+  \item{\code{conf.level.achieved}}{Numeric value of the achieved confidence level.}
+}
 }
 \description{
 Calculate confidence interval for a simple difference in means
