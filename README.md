@@ -23,7 +23,7 @@ remotes::install_github("ColbyStatSvyRsch/CIPerm", build_vignettes = TRUE)
 x <- c(19, 22, 25, 26)
 y <- c(23, 33, 40)
 demo <- dset(x, y)
-cint(demo, .05, "Two")
+cint(demo, .95, "Two")
 #> [1] -21   3
 ```
 

@@ -7,9 +7,9 @@
 dset(group1, group2, nmc = 10000, returnData = FALSE)
 }
 \arguments{
-\item{group1}{Vector of values for first group.}
+\item{group1}{Vector of numeric values for first group.}
 
-\item{group2}{Vector of values for second group.}
+\item{group2}{Vector of numeric values for second group.}
 
 \item{nmc}{Threshold for whether to use Monte Carlo draws or complete
 enumeration. If the number of all possible combinations
@@ -26,9 +26,10 @@ needed for confidence intervals and p-values (if FALSE, default).}
 A data frame ready to be used in \code{cint()} or \code{pval()}.
 }
 \description{
-Calculate table of differences in means etc. for each
-combination (or permutation if using Monte Carlo approx.),
-as needed in order to compute a p-value and/or confidence interval...
+Calculate table of differences in means, medians, etc. for each
+combination (or permutation, if using Monte Carlo approx.),
+as needed in order to compute a confidence interval using \code{\link{cint}}
+and/or a p-value using \code{\link{pval}}.
 }
 \examples{
 x <- c(19, 22, 25, 26)

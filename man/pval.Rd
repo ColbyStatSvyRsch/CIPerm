@@ -5,19 +5,21 @@
 \title{pval function}
 \usage{
 pval(
-  data,
+  dset,
   tail = c("Two", "Left", "Right"),
   value = c("m", "s", "d", "w", "a")
 )
 }
 \arguments{
-\item{data}{The output of \code{dset()}.}
+\item{dset}{The output of \code{\link{dset}}.}
 
 \item{tail}{Which tail? Either "Left" or "Right" or "Two"-tailed test.}
 
-\item{value}{Either "m" for difference in means (default),
-"s" for sum of Group 1 values,
-"d" for difference in medians,
+\item{value}{Either "m" for difference in means (default);
+"s" for sum of Group 1 values
+(equivalent to "m" and included only for sake of checking results against
+Nguyen (2009) and Ernst (2004));
+"d" for difference in medians;
 or "w" for Wilcoxon rank sum statistic;
 or "a" for a named vector of all four p-values.}
 }
@@ -26,7 +28,13 @@ Numeric p-value for the selected type of test,
     or a named vector of all four p-values if \code{value="a"}.
 }
 \description{
-Calculate p-value from permutation test...
+Calculate p-values for a two-sample permutation or randomization test.
+In other words, we set up a permutation or randomization test to evaluate
+the null hypothesis that groups A and B have the same distribution,
+then calculate p-values for several alternatives:
+a difference in means (\code{value="m"}),
+a difference in medians (\code{value="d"}),
+or the Wilcoxon rank sum test (\code{value="w"}).
 }
 \examples{
 x <- c(19, 22, 25, 26)

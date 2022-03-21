@@ -1,9 +1,10 @@
 #' dsetFast function
 #'
-#' DRAFT of faster version of \code{dset()}:
-#' Calculate table of differences in means etc. for each
-#' combination (or permutation if using Monte Carlo approx.),
-#' as needed in order to compute a p-value and/or confidence interval...
+#' DRAFT of faster version of \code{\link{dset}}:
+#' Calculate table of differences in means, medians, etc. for each
+#' combination (or permutation, if using Monte Carlo approx.),
+#' as needed in order to compute a confidence interval using \code{\link{cint}}
+#' and/or a p-value using \code{\link{pval}}.
 #'
 #' @param group1 Vector of values for first group.
 #' @param group2 Vector of values for second group.

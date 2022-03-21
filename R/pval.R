@@ -1,12 +1,20 @@
 #' pval function
 #'
-#' Calculate p-value from permutation test...
+#' Calculate p-values for a two-sample permutation or randomization test.
+#' In other words, we set up a permutation or randomization test to evaluate
+#' the null hypothesis that groups A and B have the same distribution,
+#' then calculate p-values for several alternatives:
+#' a difference in means (\code{value="m"}),
+#' a difference in medians (\code{value="d"}),
+#' or the Wilcoxon rank sum test (\code{value="w"}).
 #'
-#' @param data The output of \code{dset()}.
+#' @param dset The output of \code{\link{dset}}.
 #' @param tail Which tail? Either "Left" or "Right" or "Two"-tailed test.
-#' @param value Either "m" for difference in means (default),
-#'     "s" for sum of Group 1 values,
-#'     "d" for difference in medians,
+#' @param value Either "m" for difference in means (default);
+#'     "s" for sum of Group 1 values
+#'     (equivalent to "m" and included only for sake of checking results against
+#'     Nguyen (2009) and Ernst (2004));
+#'     "d" for difference in medians;
 #'     or "w" for Wilcoxon rank sum statistic;
 #'     or "a" for a named vector of all four p-values.
 #' @return Numeric p-value for the selected type of test,
@@ -28,29 +36,29 @@
 
 
 
-pval <- function(data, tail = c("Two", "Left", "Right"),
+pval <- function(dset, tail = c("Two", "Left", "Right"),
                  value = c("m", "s", "d", "w", "a")){
 
   tail <- match.arg(tail)
   value <- match.arg(value)
 
-  num <- nrow(data)
+  num <- nrow(dset)
 
   if (tail == "Left"){
-    pvalmean = sum(data$diffmean <= data$diffmean[1])/num
-    pvalsum = sum(data$sum1 <= data$sum1[1])/num
-    pvalmedian = sum(data$diffmedian <= data$diffmedian[1])/num
-    pvalwilsum = sum(data$wilsum <= data$wilsum[1])/num
+    pvalmean = sum(dset$diffmean <= dset$diffmean[1])/num
+    pvalsum = sum(dset$sum1 <= dset$sum1[1])/num
+    pvalmedian = sum(dset$diffmedian <= dset$diffmedian[1])/num
+    pvalwilsum = sum(dset$wilsum <= dset$wilsum[1])/num
   } else if (tail == "Right") {
-    pvalmean = sum(data$diffmean >= data$diffmean[1])/num
-    pvalsum = sum(data$sum1 >= data$sum1[1])/num
-    pvalmedian = sum(data$diffmedian >= data$diffmedian[1])/num
-    pvalwilsum = sum(data$wilsum >= data$wilsum[1])/num
+    pvalmean = sum(dset$diffmean >= dset$diffmean[1])/num
+    pvalsum = sum(dset$sum1 >= dset$sum1[1])/num
+    pvalmedian = sum(dset$diffmedian >= dset$diffmedian[1])/num
+    pvalwilsum = sum(dset$wilsum >= dset$wilsum[1])/num
   } else { # tail == "Two"
-    pvalmean <- sum(abs(data$diffmean - mean(data$diffmean)) >= abs(data$diffmean[1] - mean(data$diffmean)))/num
-    pvalsum <- sum(abs(data$sum1 - mean(data$sum1)) >= abs(data$sum1[1] - mean(data$sum1)))/num
-    pvalmedian <- sum(abs(data$diffmedian - mean(data$diffmedian)) >= abs(data$diffmedian[1] - mean(data$diffmedian)))/num
-    pvalwilsum <- sum(abs(data$wilsum - mean(data$wilsum)) >= abs(data$wilsum[1] - mean(data$wilsum)))/num
+    pvalmean <- sum(abs(dset$diffmean - mean(dset$diffmean)) >= abs(dset$diffmean[1] - mean(dset$diffmean)))/num
+    pvalsum <- sum(abs(dset$sum1 - mean(dset$sum1)) >= abs(dset$sum1[1] - mean(dset$sum1)))/num
+    pvalmedian <- sum(abs(dset$diffmedian - mean(dset$diffmedian)) >= abs(dset$diffmedian[1] - mean(dset$diffmedian)))/num
+    pvalwilsum <- sum(abs(dset$wilsum - mean(dset$wilsum)) >= abs(dset$wilsum[1] - mean(dset$wilsum)))/num
   }
 
   if (value == "m"){

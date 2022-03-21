@@ -1,11 +1,12 @@
 #' dset function
 #'
-#' Calculate table of differences in means etc. for each
-#' combination (or permutation if using Monte Carlo approx.),
-#' as needed in order to compute a p-value and/or confidence interval...
+#' Calculate table of differences in means, medians, etc. for each
+#' combination (or permutation, if using Monte Carlo approx.),
+#' as needed in order to compute a confidence interval using \code{\link{cint}}
+#' and/or a p-value using \code{\link{pval}}.
 #'
-#' @param group1 Vector of values for first group.
-#' @param group2 Vector of values for second group.
+#' @param group1 Vector of numeric values for first group.
+#' @param group2 Vector of numeric values for second group.
 #' @param nmc Threshold for whether to use Monte Carlo draws or complete
 #'   enumeration. If the number of all possible combinations
 #'   \code{choose(n1+n2, n1) <= nmc}, we use complete enumeration.

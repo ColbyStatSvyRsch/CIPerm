@@ -59,7 +59,7 @@ Replicate the confidence interval (left-tailed, with confidence level $(1 - \fra
 This should be `c(-Inf, 2)`.
 
 ```{r cint.p11}
-cint(demo, 2/35, "Left")
+cint(demo, 1-2/35, "Left")
 ```
 
 
@@ -93,8 +93,8 @@ However, Ernst (2004) reports a 94.90\% CI for wing lengths as `c(-0.250, 0.010)
 Neither of these is an exact match for our own results below, though both are very close.
 
 ```{r cint.p15}
-cint(wl, 1-.9490, "Two")
-cint(al, 1-.9490, "Two")
+cint(wl, .9490, "Two")
+cint(al, .9490, "Two")
 ```
 
 
@@ -111,6 +111,6 @@ wl <- dset(wl1, wl2, nmc = 5000)
 al <- dset(al1, al2, nmc = 5000)
 pval(wl, "Two", "s")
 pval(al, "Two", "s")
-cint(wl, 1-.9490, "Two")
-cint(al, 1-.9490, "Two")
+cint(wl, .9490, "Two")
+cint(al, .9490, "Two")
 ```

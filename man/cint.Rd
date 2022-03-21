@@ -4,12 +4,12 @@
 \alias{cint}
 \title{cint function}
 \usage{
-cint(data, sig = 0.05, tail = c("Two", "Left", "Right"))
+cint(dset, conf.level = 0.95, tail = c("Two", "Left", "Right"))
 }
 \arguments{
-\item{data}{The output of \code{dset()}.}
+\item{dset}{The output of \code{\link{dset}}.}
 
-\item{sig}{Significance level (default 0.05 corresponds to 95\% confidence level).}
+\item{conf.level}{Confidence level (default 0.95 corresponds to 95\% confidence level).}
 
 \item{tail}{Which tail? Either "Left" or "Right" or "Two"-tailed interval.}
 }
@@ -17,11 +17,15 @@ cint(data, sig = 0.05, tail = c("Two", "Left", "Right"))
 Numeric vector with the CI's two endpoints.
 }
 \description{
-Calculate confidence interval from permutation test...
+Calculate confidence interval for a simple difference in means
+from a two-sample permutation or randomization test.
+In other words, we set up a permutation or randomization test to evaluate
+\eqn{H_0: \mu_A - \mu_B = 0}, then use those same permutations to
+construct a CI for the parameter \eqn{\delta = (\mu_A - \mu_B)}.
 }
 \examples{
 x <- c(19, 22, 25, 26)
 y <- c(23, 33, 40)
 demo <- dset(x, y)
-cint(demo, .05, "Two")
+cint(demo, .95, "Two")
 }
