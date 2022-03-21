@@ -18,7 +18,7 @@ We show that our package replicates the analyses in
 Nguyen, M.D. (2009),
 "Nonparametric Inference using Randomization and Permutation
 Reference Distribution and their Monte-Carlo Approximation"
-[unpublished MS thesis], Portland State University.
+[unpublished MS thesis; Mara Tableman, advisor], Portland State University.
 
 We also compare against equivalent results in
 Ernst, M.D. (2004),

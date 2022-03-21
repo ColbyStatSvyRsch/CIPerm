@@ -6,7 +6,8 @@ Date: 2022-03-21
 Authors@R: c(
     person("Emily", "Tupaj", role = "aut"),
     person("Jerzy", "Wieczorek", email = "jawieczo@colby.edu", role = c("cre", "aut")),
-    person("Minh", "Nguyen", role = "ctb"))
+    person("Minh", "Nguyen", role = "ctb"),
+    person("Mara", "Tableman", role = "ctb"))
 Description: Implements computationally-efficient construction of
     confidence intervals from permutation or randomization tests
     for simple differences in means,

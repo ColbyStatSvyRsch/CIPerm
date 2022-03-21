@@ -39,7 +39,7 @@
 #'   Nguyen, M.D. (2009).
 #'   "Nonparametric Inference using Randomization and Permutation
 #'   Reference Distribution and their Monte-Carlo Approximation"
-#'   [unpublished MS thesis], Portland State University.
+#'   [unpublished MS thesis; Mara Tableman, advisor], Portland State University.
 
 #' @importFrom matrixStats colMedians
 #' @importFrom stats median
