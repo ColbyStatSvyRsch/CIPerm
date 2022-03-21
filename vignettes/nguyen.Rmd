@@ -20,6 +20,73 @@ Nguyen, M.D. (2009),
 Reference Distribution and their Monte-Carlo Approximation"
 [unpublished MS thesis], Portland State University.
 
+We also compare against equivalent results in
+Ernst, M.D. (2004),
+"Permutation Methods: A Basis for Exact Inference,"
+*Statistical Science*, vol. 19, no. 4, 676-685,
+[DOI:10.1214/088342304000000396](https://doi.org/10.1214/088342304000000396).
+
+Following Ernst (2004) and Nguyen (2009), we use the phrase "permutation methods"
+to include both randomization tests
+(where we assume random assignment of 2 treatments)
+and permutation tests
+(where we assume random sampling from 2 populations).
+In the simple settings in this R package,
+the randomization and permutation test mechanics are identical,
+but their interpretations may differ.
+
+
+# Brief overview of Nguyen (2009)'s method
+
+Consider a two-sample testing setup,
+where $X_1, \ldots, X_m$ are the responses from the control group
+and $Y_1, \ldots, Y_n$ are the responses from the treatment group.
+Imagine that lower responses are better (e.g., illness recovery times).
+
+With a standard one-sided randomization test or permutation test,
+we can test $H_0: \mu_Y - \mu_X \geq 0$ against $H_A: \mu_Y - \mu_X < 0$.
+
+We could also test for a specific value of $\mu_Y - \mu_X$, e.g.
+$H_0: \mu_Y - \mu_X \geq \Delta$ against $H_A: \mu_Y - \mu_X < \Delta$.
+If we assume a constant additive effect,
+we could carry this out by replacing all the $Y_j$ values with $Y_{j,\Delta} = Y_j-\Delta$
+and then running the usual randomization test for a difference of 0.
+
+Finally, we can invert the test to get a confidence interval.
+If we repeat the procedure above for many difference values of $\Delta$
+and record the values where the test fails to reject at level $\alpha$,
+we will have a $1-\alpha$ one-tailed confidence interval for $\Delta$.
+
+Doing this naively would require running many new permutations at each of many $\Delta$ values.
+But Nguyen (2009) derives a shortcut that gives this confidence interval directly from a single set of permutations.
+
+## We don't have to recompute the permutation distribution for each $\Delta$
+
+Each permutation involves swapping $k$ labels: we treat $k$ of the $X_i$ as if they were $Y_j$ and vice versa.
+Let $t_{k,d}$ be the difference in group means for $d^{th}$ of the permutations with $k$ swaps. For instance, on the original data we have
+\[t_0 = \frac{\sum_{j=1}^n Y_j}{n} - \frac{\sum_{i=1}^m X_i}{m}\]
+and other permutations have the form
+\[t_{k,d} = \frac{\sum_{i=1}^k X_i + \sum_{j=k+1}^n Y_j}{n} - \frac{\sum_{j=1}^k Y_j + \sum_{i=k+1}^m X_i}{m}\]
+
+Now if $t_{k,d,\Delta}$ is the same statistic but computed on the dataset where $Y_{j,\Delta}$ replaces $Y_j$, then Nguyen (2009) shows that
+\[t_{k,d,\Delta} = t_{k,d} - \Delta + k\left(\frac{1}{n}+\frac{1}{m}\right)\Delta\]
+So if we keep track of $k$ for each permutation, then one run of the randomization test is enough -- we don't need to carry out new runs for new $\Delta$ values.
+
+
+## We don't have to try every possible $\Delta$
+
+Next, let $w_{k,d} = \frac{t_0-t_{k,d}}{k\left(\frac{1}{n}+\frac{1}{m}\right)}$.
+Nguyen (2009) shows that if we compute the $w_{k,d}$ for each permutation and sort them,
+then their upper $\alpha$ quantile $w_{(\alpha)}$ gives the $1-\alpha$ one-sided CI upper bound for $\Delta$:
+\[\hat{P}[\Delta \in (-\infty, w_{(\alpha)})] = 1-\alpha\]
+To get a two-sided CI for $\Delta$, we can do this for both tails at half the nominal alpha.
+
+In our R package, `dset()` sets up the usual two-sample randomization or permutation test,
+but records $k$ and $w_{k,d}$ for each permutation.
+Then `cint()` finds the appropriate quantiles of $w_{k,d}$ to return the confidence interval.
+
+We also track a few other test statistics, allowing `pval()` to return p-values
+for a difference in means, a difference in medians, or the Wilcoxon rank sum test.
 
 # Recovery times example
 
