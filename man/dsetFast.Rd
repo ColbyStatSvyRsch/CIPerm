@@ -2,7 +2,7 @@
 % Please edit documentation in R/dsetFast.R
 \name{dsetFast}
 \alias{dsetFast}
-\title{dsetFast function}
+\title{Permutation-methods summary statistics (faster version!)}
 \usage{
 dsetFast(group1, group2, nmc = 10000, returnData = FALSE)
 }

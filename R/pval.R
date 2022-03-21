@@ -1,4 +1,4 @@
-#' pval function
+#' Permutations-methods p-values for difference in means, medians, or Wilcoxon rank sum test
 #'
 #' Calculate p-values for a two-sample permutation or randomization test.
 #' In other words, we set up a permutation or randomization test to evaluate

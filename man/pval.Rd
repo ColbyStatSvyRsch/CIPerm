@@ -2,7 +2,7 @@
 % Please edit documentation in R/pval.R
 \name{pval}
 \alias{pval}
-\title{pval function}
+\title{Permutations-methods p-values for difference in means, medians, or Wilcoxon rank sum test}
 \usage{
 pval(
   dset,

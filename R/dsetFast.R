@@ -1,4 +1,4 @@
-#' dsetFast function
+#' Permutation-methods summary statistics (faster version!)
 #'
 #' DRAFT of faster version of \code{\link{dset}}:
 #' Calculate table of differences in means, medians, etc. for each

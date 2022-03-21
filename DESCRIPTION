@@ -1,6 +1,6 @@
 Package: CIPerm
 Type: Package
-Title: Creating CIs for Mean Shift from Permutation Tests
+Title: Computationally-Efficient CIs for Mean Shift from Permutation Methods
 Version: 0.1.0.9004
 Date: 2022-03-21
 Authors@R: c(

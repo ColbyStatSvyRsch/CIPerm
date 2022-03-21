@@ -1,4 +1,4 @@
-#' dset function
+#' Permutation-methods summary statistics
 #'
 #' Calculate table of differences in means, medians, etc. for each
 #' combination (or permutation, if using Monte Carlo approx.),

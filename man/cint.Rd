@@ -2,7 +2,7 @@
 % Please edit documentation in R/cint.R
 \name{cint}
 \alias{cint}
-\title{cint function}
+\title{Permutation-methods confidence interval for difference in means}
 \usage{
 cint(dset, conf.level = 0.95, tail = c("Two", "Left", "Right"))
 }

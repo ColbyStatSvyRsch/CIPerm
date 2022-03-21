@@ -6,6 +6,10 @@
 #' The method is based on Minh D. Nguyen's 2009 MS thesis paper,
 #' "Nonparametric Inference using Randomization and Permutation
 #' Reference Distribution and their Monte-Carlo Approximation."
+#' See the \code{nguyen} vignette for a brief summary of the method.
+#' First use \code{\link{dset}} to tabulate summary statistics for each permutation.
+#' Then pass the results into \code{\link{cint}} to compute a confidence interval,
+#' or into \code{\link{pval}} to calculate p-values.
 #'
 #' Following Ernst (2004) and Nguyen (2009), we use "permutation methods"
 #' to include both randomization tests and permutation tests.

@@ -2,7 +2,7 @@
 % Please edit documentation in R/dset.R
 \name{dset}
 \alias{dset}
-\title{dset function}
+\title{Permutation-methods summary statistics}
 \usage{
 dset(group1, group2, nmc = 10000, returnData = FALSE)
 }

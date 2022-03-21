@@ -1,4 +1,4 @@
-#' cint function
+#' Permutation-methods confidence interval for difference in means
 #'
 #' Calculate confidence interval for a simple difference in means
 #' from a two-sample permutation or randomization test.
