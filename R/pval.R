@@ -9,11 +9,11 @@
 #' or the Wilcoxon rank sum test (\code{value="w"}).
 #'
 #' @param dset The output of \code{\link{dset}}.
-#' @param tail Which tail? Either "Left" or "Right" or "Two"-tailed test.
+#' @param tail Which tail? Either "Two"- or "Left"- or "Right"-tailed test.
 #' @param value Either "m" for difference in means (default);
 #'     "s" for sum of Group 1 values
-#'     (equivalent to "m" and included only for sake of checking results against
-#'     Nguyen (2009) and Ernst (2004));
+#'     [equivalent to "m" and included only for sake of checking results against
+#'     Nguyen (2009) and Ernst (2004)];
 #'     "d" for difference in medians;
 #'     or "w" for Wilcoxon rank sum statistic;
 #'     or "a" for a named vector of all four p-values.

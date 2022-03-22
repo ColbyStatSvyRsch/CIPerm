@@ -1,8 +1,8 @@
 Package: CIPerm
 Type: Package
 Title: Computationally-Efficient CIs for Mean Shift from Permutation Methods
-Version: 0.1.0.9004
-Date: 2022-03-21
+Version: 0.1.0.9005
+Date: 2022-03-22
 Authors@R: c(
     person("Emily", "Tupaj", role = "aut"),
     person("Jerzy", "Wieczorek", email = "jawieczo@colby.edu", role = c("cre", "aut")),

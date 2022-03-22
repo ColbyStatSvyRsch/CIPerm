@@ -11,7 +11,7 @@ cint(dset, conf.level = 0.95, tail = c("Two", "Left", "Right"))
 
 \item{conf.level}{Confidence level (default 0.95 corresponds to 95\% confidence level).}
 
-\item{tail}{Which tail? Either "Left" or "Right" or "Two"-tailed interval.}
+\item{tail}{Which tail? Either "Two"- or "Left"- or "Right"-tailed interval.}
 }
 \value{
 A list containing the following components:\describe{
@@ -25,6 +25,20 @@ from a two-sample permutation or randomization test.
 In other words, we set up a permutation or randomization test to evaluate
 \eqn{H_0: \mu_A - \mu_B = 0}, then use those same permutations to
 construct a CI for the parameter \eqn{\delta = (\mu_A - \mu_B)}.
+}
+\details{
+If the desired \code{conf.level} is not exactly feasible,
+the achieved confidence level will be slightly anti-conservative.
+We use the default numeric tolerance in \code{\link{all.equal}} to check
+if \code{(1-conf.level) * nrow(dset)} is an integer for one-tailed CIs,
+or if \code{(1-conf.level)/2 * nrow(dset)} is an integer for two-tailed CIs.
+If so, \code{conf.level.achieved} will be the desired \code{conf.level}.
+Otherwise, we will use the next feasible integer,
+thus slightly reducing the confidence level.
+For example, in the example below the randomization test has 35 combinations,
+and a two-sided CI must have at least one combination value in each tail,
+so the largest feasible confidence level for a two-sided CI is 1-(2/35) or around 94.3\%.
+If we request a 95\% or 99\% CI, we will have to settle for a 94.3\% CI instead.
 }
 \examples{
 x <- c(19, 22, 25, 26)

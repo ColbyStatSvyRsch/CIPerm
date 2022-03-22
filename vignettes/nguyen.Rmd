@@ -14,14 +14,16 @@ knitr::opts_chunk$set(
 )
 ```
 
-We show that our package replicates the analyses in
-Nguyen, M.D. (2009),
+We show that our package replicates the analyses in:
+
+- Nguyen, M.D. (2009),
 "Nonparametric Inference using Randomization and Permutation
 Reference Distribution and their Monte-Carlo Approximation"
 [unpublished MS thesis; Mara Tableman, advisor], Portland State University.
 
-We also compare against equivalent results in
-Ernst, M.D. (2004),
+We also compare against equivalent results in:
+
+- Ernst, M.D. (2004),
 "Permutation Methods: A Basis for Exact Inference,"
 *Statistical Science*, vol. 19, no. 4, 676-685,
 [DOI:10.1214/088342304000000396](https://doi.org/10.1214/088342304000000396).
@@ -75,14 +77,16 @@ So if we keep track of $k$ for each permutation, then one run of the randomizati
 
 ## We don't have to try every possible $\Delta$
 
-Next, let $w_{k,d} = \frac{t_0-t_{k,d}}{k\left(\frac{1}{n}+\frac{1}{m}\right)}$.
+Next, we don't actually have to calculate $t_{k,d,\Delta}$ values directly---only the $t_{k,d}$ values we would usually calculate for a standard test of no difference in means, and the values of $k$ for each permutation.
+
+Let $w_{k,d} = \frac{t_0-t_{k,d}}{k\left(\frac{1}{n}+\frac{1}{m}\right)}$.
 Nguyen (2009) shows that if we compute the $w_{k,d}$ for each permutation and sort them,
 then their upper $\alpha$ quantile $w_{(\alpha)}$ gives the $1-\alpha$ one-sided CI upper bound for $\Delta$:
 \[\hat{P}[\Delta \in (-\infty, w_{(\alpha)})] = 1-\alpha\]
 To get a two-sided CI for $\Delta$, we can do this for both tails at half the nominal alpha.
 
 In our R package, `dset()` sets up the usual two-sample randomization or permutation test,
-but records $k$ and $w_{k,d}$ for each permutation.
+but also records $k$ and $w_{k,d}$ for each permutation.
 Then `cint()` finds the appropriate quantiles of $w_{k,d}$ to return the confidence interval.
 
 We also track a few other test statistics, allowing `pval()` to return p-values
@@ -126,7 +130,7 @@ Replicate the confidence interval (left-tailed, with confidence level $(1 - \fra
 This should be `c(-Inf, 2)`.
 
 ```{r cint.p11}
-cint(demo, .943, "Left")
+cint(demo, 1-2/35, "Left")
 ```
 
 
@@ -164,9 +168,11 @@ cint(wl, .95, "Two")
 cint(al, .95, "Two")
 ```
 
-The confidence levels in Ernst (2004) and Nguyen (2009) might differ from ours due to typos or rounding, since it is not possible to achieve exactly 94.90\% or 94.94\% confidence with this method. There are $15 \choose 9$ = 5005 permutations. If we used the 126th, 127th, or 128th lowest and highest $w_{k,d}$ values to get our two-sided CI endpoints, the respective confidence levels would be $1-2\times(126/5005)\approx 0.94965$,
+The confidence levels in Ernst (2004) and Nguyen (2009) might differ from ours due to typos or rounding, since it is not possible to achieve exactly 94.90\% or 94.94\% confidence with this method. There are ${9+6 \choose 9} = 5005$ combinations. The closest confidence levels would be achieved if we used the 126th, 127th, or 128th lowest and highest $w_{k,d}$ values to get our two-sided CI endpoints. In those cases, the respective confidence levels would be $1-2\times(126/5005)\approx 0.94965$,
 $1-2\times(127/5005)\approx 0.94925$, or
-$1-2\times(128/5005)\approx 0.94885$. 
+$1-2\times(128/5005)\approx 0.94885$.
+
+Also, Ernst (2004) may have different CI endpoints because he used an entirely different, less computationally-efficient method to calculate CIs, based on Garthwaite (1996), "Confidence intervals from randomization tests," *Biometrics* 52, 1387-1393.
 
 
 

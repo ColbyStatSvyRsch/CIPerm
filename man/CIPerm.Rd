@@ -41,7 +41,7 @@ and causal inferences may not be relevant.
 Ernst, M.D. (2004).
   "Permutation Methods: A Basis for Exact Inference,"
   \emph{Statistical Science}, vol. 19, no. 4, 676-685,
-  DOI:10.1214/088342304000000396.
+  <\doi{10.1214/088342304000000396}>.
 
   Nguyen, M.D. (2009).
   "Nonparametric Inference using Randomization and Permutation
