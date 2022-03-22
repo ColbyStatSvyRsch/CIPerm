@@ -36,7 +36,7 @@
 
 cint <- function(dset, conf.level = .95, tail = c("Two", "Left", "Right")){
 
-  sig = 1 - conf.level
+  sig <- 1 - conf.level
   stopifnot(sig > 0 & sig < 1)
   tail <- match.arg(tail)
 
@@ -84,8 +84,8 @@ cint <- function(dset, conf.level = .95, tail = c("Two", "Left", "Right")){
     siglevel <- sig
     index <- roundOrCeiling(siglevel*num) - 1
     UB <- w.i[(num-index)]
-    LT = c(-Inf, UB)
-    conf.achieved = 1-((index+1)/num)
+    LT <- c(-Inf, UB)
+    conf.achieved <- 1-((index+1)/num)
     message(paste0("Achieved conf. level: 1-(", index+1, "/", num, ")"))
     return(list(conf.int = LT,
                 conf.level.achieved = conf.achieved))
@@ -94,8 +94,8 @@ cint <- function(dset, conf.level = .95, tail = c("Two", "Left", "Right")){
     index <- roundOrCeiling(siglevel*num) - 1
     LB <- w.i[1+nk0+index] # starts counting from the (1+nk0)'th element of w.i
     # (not the first (original) which will always be 'NaN')
-    RT = c(LB, Inf)
-    conf.achieved = 1-((index+1)/num)
+    RT <- c(LB, Inf)
+    conf.achieved <- 1-((index+1)/num)
     message(paste0("Achieved conf. level: 1-(", index+1, "/", num, ")"))
     return(list(conf.int = RT,
                 conf.level.achieved = conf.achieved))
@@ -107,8 +107,8 @@ cint <- function(dset, conf.level = .95, tail = c("Two", "Left", "Right")){
     # (not the first (original) which will always be 'NaN')
     Upper <- if(is.na(UB)) Inf else UB
     Lower <- if(is.na(LB)) -Inf else LB
-    CI = c(Lower, Upper)
-    conf.achieved = 1-(2*(index+1)/num)
+    CI <- c(Lower, Upper)
+    conf.achieved <- 1-(2*(index+1)/num)
     message(paste0("Achieved conf. level: 1-2*(", index+1, "/", num, ")"))
     return(list(conf.int = CI,
                 conf.level.achieved = conf.achieved))

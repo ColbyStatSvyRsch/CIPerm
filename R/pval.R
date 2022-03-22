@@ -45,15 +45,15 @@ pval <- function(dset, tail = c("Two", "Left", "Right"),
   num <- nrow(dset)
 
   if (tail == "Left"){
-    pvalmean = sum(dset$diffmean <= dset$diffmean[1])/num
-    pvalsum = sum(dset$sum1 <= dset$sum1[1])/num
-    pvalmedian = sum(dset$diffmedian <= dset$diffmedian[1])/num
-    pvalwilsum = sum(dset$wilsum <= dset$wilsum[1])/num
+    pvalmean <- sum(dset$diffmean <= dset$diffmean[1])/num
+    pvalsum <- sum(dset$sum1 <= dset$sum1[1])/num
+    pvalmedian <- sum(dset$diffmedian <= dset$diffmedian[1])/num
+    pvalwilsum <- sum(dset$wilsum <= dset$wilsum[1])/num
   } else if (tail == "Right") {
-    pvalmean = sum(dset$diffmean >= dset$diffmean[1])/num
-    pvalsum = sum(dset$sum1 >= dset$sum1[1])/num
-    pvalmedian = sum(dset$diffmedian >= dset$diffmedian[1])/num
-    pvalwilsum = sum(dset$wilsum >= dset$wilsum[1])/num
+    pvalmean <- sum(dset$diffmean >= dset$diffmean[1])/num
+    pvalsum <- sum(dset$sum1 >= dset$sum1[1])/num
+    pvalmedian <- sum(dset$diffmedian >= dset$diffmedian[1])/num
+    pvalwilsum <- sum(dset$wilsum >= dset$wilsum[1])/num
   } else { # tail == "Two"
     pvalmean <- sum(abs(dset$diffmean - mean(dset$diffmean)) >= abs(dset$diffmean[1] - mean(dset$diffmean)))/num
     pvalsum <- sum(abs(dset$sum1 - mean(dset$sum1)) >= abs(dset$sum1[1] - mean(dset$sum1)))/num

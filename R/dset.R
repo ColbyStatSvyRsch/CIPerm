@@ -111,11 +111,11 @@
 
 dset <- function(group1, group2, nmc = 10000, returnData = FALSE){
   stopifnot(nmc >= 0)
-  # TODO: add more error checks:
-  #   nmc must be a non-neg integer, not 1, & not too small relative to n,m(?);
-  #   group1 and group2 must be numeric, vectors, and non-empty
+  stopifnot(nmc != 1)
+  stopifnot(is.numeric(group1) & is.numeric(group2))
+  stopifnot(length(group1) >= 1 & length(group2) >= 1)
+  stopifnot(!any(is.na(c(group1, group2))))
 
-  # creates the dataset referenced in pval and cint
   combined <- c(group1, group2)
 
   n <- length(group1)
@@ -123,27 +123,38 @@ dset <- function(group1, group2, nmc = 10000, returnData = FALSE){
   den <- (1/n + 1/m)
 
   N <- n + m
-  num <- choose(N, n)
-  if(nmc == 0 | num <= nmc) {
-    dcombn <- utils::combn(1:N, n)
+  num <- choose(N, n) # number of possible combinations
+
+  # Form a matrix where each column contains indices in new "group1" for that comb or perm
+  if(nmc == 0 | num <= nmc) { # take all possible combinations
+    dcombn1 <- utils::combn(1:N, n)
   } else { # use Monte Carlo sample of permutations, not all possible combinations
-    dcombn <- replicate(nmc, sample(N, n))
-    dcombn[,1] <- 1:n # force the 1st "combination" to be original data order
+    dcombn1 <- replicate(nmc, sample(N, n))
+    dcombn1[,1] <- 1:n # force the 1st "combination" to be original data order
     num <- nmc
   }
 
-  dcombn2 <- apply(dcombn, 2, function(x) setdiff(1:N, x))
-  group1_perm <- matrix(combined[dcombn], nrow = n)
+  # Form the equivalent matrix for indices in new "group2"
+  dcombn2 <- apply(dcombn1, 2, function(x) setdiff(1:N, x))
+
+  # Form the corresponding matrices of data values, not data indices
+  group1_perm <- matrix(combined[dcombn1], nrow = n)
   group2_perm <- matrix(combined[dcombn2], nrow = m)
 
-  k <- colSums(matrix(dcombn %in% ((n+1):N), nrow=n))
+  # For each comb or perm, compute:
+  #   difference in group means; sum in group1; difference in group medians;
+  #   and sum of *ranks* in group1 (the statistic for the Wilcoxon rank sum test)
   diffmean <- colMeans(group1_perm) - colMeans(group2_perm)
   sum1 <- colSums(group1_perm)
   diffmedian <- matrixStats::colMedians(group1_perm) - matrixStats::colMedians(group2_perm)
-
   r <- rank(combined, ties.method = "first")
-  wilsum <- colSums(matrix(r[dcombn], nrow = n))
-  wkd = (diffmean[1] - diffmean) / (k * den)
+  wilsum <- colSums(matrix(r[dcombn1], nrow = n))
+
+  # For each comb or perm, compute:
+  #   k = how many values swapped from group1 to group2?
+  #   wkd = Nguyen (2009) statistic whose quantiles are used for CI endpoints
+  k <- colSums(matrix(dcombn1 %in% ((n+1):N), nrow=n))
+  wkd <- (diffmean[1] - diffmean) / (k * den)
 
   dataframe <- data.frame(diffmean = diffmean,
                           sum1 = sum1,
