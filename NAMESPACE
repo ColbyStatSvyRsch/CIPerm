@@ -2,7 +2,6 @@
 
 export(cint)
 export(dset)
-export(dsetFast)
 export(pval)
 importFrom(matrixStats,colMedians)
 importFrom(stats,median)
