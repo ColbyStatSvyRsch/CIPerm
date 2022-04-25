@@ -20,8 +20,12 @@ We show that our package replicates the analyses in:
 "Nonparametric Inference using Randomization and Permutation
 Reference Distribution and their Monte-Carlo Approximation"
 [unpublished MS thesis; Mara Tableman, advisor], Portland State University.
+*Dissertations and Theses*. Paper 5927.
+https://archives.pdx.edu/ds/psu/37406.
 
-We also compare against equivalent results in:
+Note that our R function arguments and outputs are structured differently than the similarly-named R functions in Nguyen (2009), but the results are equivalent.
+
+We also compare our output against related results in:
 
 - Ernst, M.D. (2004),
 "Permutation Methods: A Basis for Exact Inference,"
@@ -29,13 +33,13 @@ We also compare against equivalent results in:
 [DOI:10.1214/088342304000000396](https://doi.org/10.1214/088342304000000396).
 
 Following Ernst (2004) and Nguyen (2009), we use the phrase "permutation methods"
-to include both randomization tests
+to include both *randomization* tests
 (where we assume random assignment of 2 treatments)
-and permutation tests
+and *permutation* tests
 (where we assume random sampling from 2 populations).
 In the simple settings in this R package,
 the randomization and permutation test mechanics are identical,
-but their interpretations may differ.
+though their interpretations may differ.
 
 
 # Brief overview of Nguyen (2009)'s method
@@ -114,23 +118,23 @@ The first three should be `0.08571429`, and the last should be `0.1142857`.
 
 ```{r pvals.p6}
 # Difference in means
-pval(demo, "Left", "m")
+pval(demo, tail = "Left", value = "m")
 
 # Sum of treatment group
-pval(demo, "Left", "s")
+pval(demo, tail = "Left", value = "s")
 
 # Difference in medians
-pval(demo, "Left", "d")
+pval(demo, tail = "Left", value = "d")
 
 # Wilcoxon rank sum statistic
-pval(demo, "Left", "w")
+pval(demo, tail = "Left", value = "w")
 ```
 
 Replicate the confidence interval (left-tailed, with confidence level $(1 - \frac{2}{35})\times 100\% \approx 94.3\%$) reported on page 11.  
 This should be `c(-Inf, 2)`.
 
 ```{r cint.p11}
-cint(demo, 1-2/35, "Left")
+cint(demo, conf.level = 1-2/35, tail = "Left")
 ```
 
 
@@ -154,8 +158,8 @@ Replicate the two-sided p-values from page 14, using the sum-of-group-1 test sta
 However, Ernst (2004) reports the p-values as `0.0719` and `0.0022`, in which case the first does not match our results after rounding, though they are very close.
 
 ```{r pvals.p14}
-pval(wl, "Two", "s")
-pval(al, "Two", "s")
+pval(wl, tail = "Two", value = "s")
+pval(al, tail = "Two", value = "s")
 ```
 
 Replicate the two-sided ~95\% CIs for the mean difference from page 15.  
@@ -164,31 +168,39 @@ However, Ernst (2004) reports a 94.90\% CI for wing lengths as `c(-0.250, 0.010)
 Neither of these is an exact match for our own results below, though both are very close.
 
 ```{r cint.p15}
-cint(wl, .95, "Two")
-cint(al, .95, "Two")
+cint(wl, conf.level = .95, tail = "Two")
+cint(al, conf.level = .95, tail = "Two")
 ```
 
 The confidence levels in Ernst (2004) and Nguyen (2009) might differ from ours due to typos or rounding, since it is not possible to achieve exactly 94.90\% or 94.94\% confidence with this method. There are ${9+6 \choose 9} = 5005$ combinations. The closest confidence levels would be achieved if we used the 126th, 127th, or 128th lowest and highest $w_{k,d}$ values to get our two-sided CI endpoints. In those cases, the respective confidence levels would be $1-2\times(126/5005)\approx 0.94965$,
 $1-2\times(127/5005)\approx 0.94925$, or
 $1-2\times(128/5005)\approx 0.94885$.
 
-Also, Ernst (2004) may have different CI endpoints because he used an entirely different, less computationally-efficient method to calculate CIs, based on Garthwaite (1996), "Confidence intervals from randomization tests," *Biometrics* 52, 1387-1393.
+Also, Ernst (2004) may have different CI endpoints because he used an entirely different, less computationally-efficient method to calculate CIs, based on Garthwaite (1996), "Confidence intervals from randomization tests," *Biometrics* 52, 1387-1393. [DOI:10.2307/2532852](https://doi.org/10.2307/2532852).
 
 
 
 ## Wing and antennae lengths with Monte Carlo
 
-Repeat the above analysis,
-but using 5000 Monte Carlo draws from all possible permutations
-instead of using all ${9+6 \choose 9} = 5005$ possible combinations.
-These results won't exactly match those above, but they should be fairly close.
+With a modern computer, it takes little time to run all
+${9+6 \choose 9} = 5005$ possible combinations.
+But for larger datasets, where there are far more possible combinations,
+it can make sense to take a smaller Monte Carlo sample from all possible permutations.
 
+In our `dset()` function, the `nmc` argument lets us choose the number of Monte Carlo draws.
+
+As in Nguyen (2009), we repeat the above analysis, but 
+this time we use 999 Monte Carlo draws instead of all 5005 possible combinations.
+Due to the randomness inherent in Monte Carlo sampling,
+these results will not match the exact results above
+nor Nguyen (2009)'s own Monte Carlo results;
+but they should be fairly close.
 
 ```{r montecarlo}
-wl <- dset(wl1, wl2, nmc = 5000)
-al <- dset(al1, al2, nmc = 5000)
-pval(wl, "Two", "s")
-pval(al, "Two", "s")
-cint(wl, .95, "Two")
-cint(al, .95, "Two")
+wl <- dset(wl1, wl2, nmc = 999)
+al <- dset(al1, al2, nmc = 999)
+pval(wl, tail = "Two", value = "s")
+pval(al, tail = "Two", value = "s")
+cint(wl, conf.level = .95, tail = "Two")
+cint(al, conf.level = .95, tail = "Two")
 ```

@@ -44,5 +44,5 @@ If we request a 95\% or 99\% CI, we will have to settle for a 94.3\% CI instead.
 x <- c(19, 22, 25, 26)
 y <- c(23, 33, 40)
 demo <- dset(x, y)
-cint(demo, .95, "Two")
+cint(dset = demo, conf.level = .95, tail = "Two")
 }

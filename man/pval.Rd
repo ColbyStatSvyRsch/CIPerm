@@ -40,6 +40,6 @@ or the Wilcoxon rank sum test (\code{value="w"}).
 x <- c(19, 22, 25, 26)
 y <- c(23, 33, 40)
 demo <- dset(x, y)
-pval(demo, "Left", "s")
-pval(demo, "Left", "a")
+pval(dset = demo, tail = "Left", value = "s")
+pval(dset = demo, tail = "Left", value = "a")
 }

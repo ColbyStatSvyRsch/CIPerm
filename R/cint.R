@@ -30,7 +30,7 @@
 #' x <- c(19, 22, 25, 26)
 #' y <- c(23, 33, 40)
 #' demo <- dset(x, y)
-#' cint(demo, .95, "Two")
+#' cint(dset = demo, conf.level = .95, tail = "Two")
 #' @export
 
 
