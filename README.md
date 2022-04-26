@@ -14,7 +14,13 @@ Note that our R function arguments and outputs are structured differently than t
 
 ## Installation
 
-For the latest development version, install directly from GitHub:
+Install a stable version of the package from [CRAN](https://cran.r-project.org/package=CIPerm):
+
+```r
+install.packages("CIPerm")
+```
+
+Or, for the latest development version, install directly from GitHub:
 
 ```r
 # install.packages("remotes")
