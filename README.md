@@ -2,6 +2,7 @@
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/ColbyStatSvyRsch/CIPerm/workflows/R-CMD-check/badge.svg)](https://github.com/ColbyStatSvyRsch/CIPerm/actions)
+[![CRAN downloads](https://cranlogs.r-pkg.org/badges/CIPerm?color=5f810e)](https://cran.r-project.org/package=CIPerm)
 <!-- badges: end -->
 
 This R package implements computationally-efficient construction of confidence intervals from permutation tests or randomization tests for simple differences in means. In other words, if we set up a permutation or randomization test to evaluate $H_0: \mu_A - \mu_B = 0$, how do we use those same permutations to cheaply construct a CI for the $(\mu_A - \mu_B)$ parameter?
