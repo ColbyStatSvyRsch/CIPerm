@@ -21,7 +21,7 @@ We show that our package replicates the analyses in:
 Reference Distribution and their Monte-Carlo Approximation"
 [unpublished MS thesis; Mara Tableman, advisor], Portland State University.
 *Dissertations and Theses*. Paper 5927.
-https://archives.pdx.edu/ds/psu/37406.
+[DOI:10.15760/etd.7798](http://doi.org/10.15760/etd.7798).
 
 Note that our R function arguments and outputs are structured differently than the similarly-named R functions in Nguyen (2009), but the results are equivalent.
 
@@ -176,7 +176,7 @@ The confidence levels in Ernst (2004) and Nguyen (2009) might differ from ours d
 $1-2\times(127/5005)\approx 0.94925$, or
 $1-2\times(128/5005)\approx 0.94885$.
 
-Also, Ernst (2004) may have different CI endpoints because he used an entirely different, less computationally-efficient method to calculate CIs, based on Garthwaite (1996), "Confidence intervals from randomization tests," *Biometrics* 52, 1387-1393. [DOI:10.2307/2532852](https://doi.org/10.2307/2532852).
+Also, Ernst (2004) may have different CI endpoints because he used an entirely different, less computationally-efficient method to calculate CIs, based on Garthwaite (1996), "Confidence intervals from randomization tests," *Biometrics* 52, 1387-1393, [DOI:10.2307/2532852](https://doi.org/10.2307/2532852).
 
 
 

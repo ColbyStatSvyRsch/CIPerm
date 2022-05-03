@@ -6,7 +6,7 @@
 #' The method is based on Minh D. Nguyen's 2009 MS thesis paper,
 #' "Nonparametric Inference using Randomization and Permutation
 #' Reference Distribution and their Monte-Carlo Approximation,"
-#' <\url{https://archives.pdx.edu/ds/psu/37406}>.
+#' <\doi{10.15760/etd.7798}>
 #' See the \code{nguyen} vignette for a brief summary of the method.
 #' First use \code{\link{dset}} to tabulate summary statistics for each permutation.
 #' Then pass the results into \code{\link{cint}} to compute a confidence interval,
@@ -47,7 +47,7 @@
 #'   Reference Distribution and their Monte-Carlo Approximation"
 #'   [unpublished MS thesis; Mara Tableman, advisor], Portland State University.
 #'   \emph{Dissertations and Theses}. Paper 5927.
-#'   <\url{https://archives.pdx.edu/ds/psu/37406}>.
+#'   <\doi{10.15760/etd.7798}>.
 
 
 #' @importFrom matrixStats colMedians
