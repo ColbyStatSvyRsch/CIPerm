@@ -1,0 +1,337 @@
+# Simulation to compare CIPerm's dset() and cint()
+# with a "naive" approach of grid search over plausible deltas
+
+library(CIPerm)
+
+# 5/28/2022
+# It works! For tiny datasets,
+#   CIPerm is just barely faster than alternatives
+# but for larger datasets, where total nr perms is in the 10k's,
+#   CIPerm is MUCH faster than for-loop "naive",
+#   and still substantially faster than "optimized-naive" using arrays.
+# ...
+# TODO:
+# 1) Confirm with microbenchmark() these results,
+#    where each perm is fast but there's a lot of them.
+# 2) Try a different type of "large" example:
+#    when we're OK with small total nr of perms, eg nmc=1000,
+#    but the DATASET itself is huge,
+#    so that each individual perm takes a long time.
+#    (Much more like Duolingo context.)
+#    BUT to do that, I'd have to also randomize within the new code.
+
+
+
+#### Define functions for "naive" approach(es) ####
+
+# Naive approach:
+# Choose a grid of possible values of delta = mu_X-mu_Y to try...
+# For each delta,
+# subtract delta off of the x's
+# and carry out a test of H_0: mu_X=mu_Y on the resulting data
+
+cint.naive.forloop <- function(x, y, deltas,
+                               nmc = 10000,
+                               conf.level = 0.95) {
+  # Two-tailed CIs only, for now
+
+  sig <- 1 - conf.level
+  pvalmeans <- rep(1, length(deltas))
+
+  # Code copied/modified from within CIPerm::dset()
+  n <- length(x)
+  m <- length(y)
+  N <- n + m
+  num <- choose(N, n) # number of possible combinations
+  # Form a matrix where each column contains indices in new "group1" for that comb or perm
+  if(nmc == 0 | num <= nmc) { # take all possible combinations
+    dcombn1 <- utils::combn(1:N, n)
+  } else { # use Monte Carlo sample of permutations, not all possible combinations
+    dcombn1 <- replicate(nmc, sample(N, n))
+    dcombn1[,1] <- 1:n # force the 1st "combination" to be original data order
+    num <- nmc
+  }
+  # Form the equivalent matrix for indices in new "group2"
+  dcombn2 <- apply(dcombn1, 2, function(x) setdiff(1:N, x))
+
+  for(dd in 1:length(deltas)) {
+    xtmp <- x - deltas[dd]
+
+    # Code copied/modified from within CIPerm::dset()
+    combined <- c(xtmp, y)
+    # Form the corresponding matrices of data values, not data indices
+    group1_perm <- matrix(combined[dcombn1], nrow = n)
+    group2_perm <- matrix(combined[dcombn2], nrow = m)
+    # For each comb or perm, compute difference in group means
+    diffmean <- colMeans(group1_perm) - colMeans(group2_perm)
+
+    # Code copied/modified from within CIPerm::pval()
+    pvalmeans[dd] <- sum(abs(diffmean - mean(diffmean)) >= abs(diffmean[1] - mean(diffmean)))/length(diffmean)
+  }
+  print( range(deltas[which(pvalmeans >= sig)]) )
+  return(list(cint = range(deltas[which(pvalmeans >= sig)]),
+              pvalmeans = pvalmeans,
+              deltas = deltas))
+}
+
+
+
+# Possible speedup:
+# Could we replace for-loop with something like manipulating a 3D array?
+# e.g., where we say
+###     group1_perm <- matrix(combined[dcombn1], nrow = n)
+# could we first make `combined` into a 2D matrix
+#   where each col is like it is now,
+#   but each row is for a different value of delta;
+# and then group1_perm would be a 3D array,
+#   where each 1st+2nd dims matrix is like it is now,
+#   but 3rd dim indexes over deltas;
+# and then `diffmean` and `pvalmeans`
+#   would be colMeans or similar over an array
+#   so the output would be right
+
+cint.naive.array <- function(x, y, deltas,
+                             nmc = 10000,
+                             conf.level = 0.95) {
+  # Two-tailed CIs only, for now
+  sig <- 1 - conf.level
+
+  # New version where xtmp is a matrix, not a vector;
+  # and some stuff below will be arrays, not matrices...
+  xtmp <- matrix(x, nrow = length(x), ncol = length(deltas))
+  xtmp <- xtmp - deltas[col(xtmp)]
+  combined <- rbind(xtmp,
+                    matrix(y, nrow = length(y), ncol = length(deltas)))
+
+  # Code copied/modified from within CIPerm::dset()
+  n <- length(x)
+  m <- length(y)
+  N <- n + m
+  num <- choose(N, n) # number of possible combinations
+  # Form a matrix where each column contains indices in new "group1" for that comb or perm
+  if(nmc == 0 | num <= nmc) { # take all possible combinations
+    dcombn1 <- utils::combn(1:N, n)
+  } else { # use Monte Carlo sample of permutations, not all possible combinations
+    dcombn1 <- replicate(nmc, sample(N, n))
+    dcombn1[,1] <- 1:n # force the 1st "combination" to be original data order
+    num <- nmc
+  }
+  # Form the equivalent matrix for indices in new "group2"
+  dcombn2 <- apply(dcombn1, 2, function(x) setdiff(1:N, x))
+
+  # ARRAYS of data indices, where 3rd dim indexes over deltas
+  dcombn1_arr <- outer(dcombn1, N * (0:(length(deltas)-1)), FUN = "+")
+  dcombn2_arr <- outer(dcombn2, N * (0:(length(deltas)-1)), FUN = "+")
+
+  # Form the corresponding ARRAYS of data values, not data indices
+  group1_perm <- array(combined[dcombn1_arr], dim = dim(dcombn1_arr))
+  group2_perm <- array(combined[dcombn2_arr], dim = dim(dcombn2_arr))
+
+  # For each comb or perm, compute difference in group means
+  # diffmean <- matrix(colMeans(group1_perm, dim=1), nrow = num) -
+  #   matrix(colMeans(group2_perm, dim=1), nrow = num)
+  diffmean <- colMeans(group1_perm, dim=1) - colMeans(group2_perm, dim=1)
+
+  # Code copied/modified from within CIPerm::pval()
+  pvalmeans <- colSums(abs(diffmean - colMeans(diffmean)[col(diffmean)]) >= abs(diffmean[1,] - colMeans(diffmean))[col(diffmean)])/nrow(diffmean)
+  # plot(deltas, pvalmeans)
+
+  print( range(deltas[which(pvalmeans >= sig)]) )
+  return(list(cint = range(deltas[which(pvalmeans >= sig)]),
+              pvalmeans = pvalmeans,
+              deltas = deltas))
+}
+
+
+
+#### Speed tests on Nguyen's tiny dataset ####
+
+# Use 1st tiny dataset from Nguyen's paper
+x <- c(19, 22, 25, 26)
+y <- c(23, 33, 40)
+
+# Actual CIPerm approach:
+system.time({
+  print( cint(dset(x, y), conf.level = 0.95, tail = "Two") )
+})
+##  user  system elapsed
+## 0.001   0.000   0.002
+
+# Naive approach with for-loops:
+deltas <- ((-22):4)
+system.time({
+  pvalmeans <- cint.naive.forloop(x, y, deltas)$pvalmeans
+})
+##  user  system elapsed
+## 0.024   0.000   0.023
+
+# Sanity check: are the p-vals always higher when closer to middle of CI?
+# Are they always above 0.05 inside and below it outside CI?
+cbind(deltas, pvalmeans)
+plot(deltas, pvalmeans)
+abline(h = 0.05)
+abline(v = c(-21, 3), lty = 2)
+# Yes, it's as it should be :)
+
+
+
+# Naive approach with arrays:
+system.time({
+  pvalmeans <- cint.naive.array(x, y, deltas)$pvalmeans
+})
+##  user  system elapsed
+## 0.023   0.001   0.022
+
+# Sanity check again:
+cbind(deltas, pvalmeans)
+plot(deltas, pvalmeans)
+abline(h = 0.05)
+abline(v = c(-21, 3), lty = 2)
+# Yep, still same results. OK.
+# So this "array" version IS faster,
+# and nearly as fast as Nguyen
+# (though harder to debug...
+#  but the same could be said of Nguyen's approach...)
+
+# WAIT WAIT WAIT
+# I changed the for-loop approach to stop creating dcombn1 & dcombn2
+# inside each step of the loop
+# since we can reuse the same ones for every value of deltas...
+# AND NOW it's FASTER than the array version???
+
+
+
+
+# Obvious next step is to try this for a LARGER dataset.
+choose(16,6)
+## 8008
+# This is pretty close to the default nmc=10k
+# ...
+# BUT
+# We could also force non-MC by setting dset(..., nmc) higher.
+# So let's do a larger dataset after all.
+choose(18, 9)
+## 48620
+set.seed(20220528)
+x <- rnorm(9, mean = 0, sd = 1)
+y <- rnorm(9, mean = 1, sd = 1)
+
+
+
+# Actual CIPerm approach
+# (with nmc = 1e6 >> choose(N,n))
+system.time({
+  print( cint(dset(x, y, nmc = 1e6),
+              conf.level = 0.95, tail = "Two") )
+})
+##  user  system elapsed
+## 0.516   0.001   0.516
+
+# Coarser grid
+deltas <- ((-21):(1))/10     # grid steps of 0.1
+
+# Naive with arrays:
+system.time({
+  pvalmeans <- cint.naive.array(x, y, deltas, nmc= 1e6)$pvalmeans
+})
+##  user  system elapsed
+## 1.080   0.098   1.177
+
+# Naive with for-loops:
+system.time({
+  pvalmeans <- cint.naive.forloop(x, y, deltas, nmc= 1e6)$pvalmeans
+})
+##  user  system elapsed
+## 0.699   0.084   0.784
+
+# !!! Indeed it looks like naive.forloop
+# is FASTER than naive.array
+# now that I've removed the slow dcombn1 & dcombn2 creating from the loop.
+
+
+# Finer grid
+deltas <- ((-21*2):(1*2))/20 # grid steps of 0.05
+
+# Naive with arrays:
+system.time({
+  pvalmeans <- cint.naive.array(x, y, deltas, nmc= 1e6)$pvalmeans
+})
+##  user  system elapsed
+## 1.039   0.164   1.211
+
+# Naive with for-loops:
+system.time({
+  pvalmeans <- cint.naive.forloop(x, y, deltas, nmc= 1e6)$pvalmeans
+})
+##  user  system elapsed
+## 0.777   0.071   0.846
+
+# Okay! Now it looks much better:
+# (for the finer grid)
+## CIPerm:    0.5 sec
+## For-loop:  0.8 sec
+## Arrays:    1.2 sec
+# AND that's with the "cheat" of using CIPerm
+# to get the "right" CI limits
+# so our grid search isn't too wide,
+# just stepping over the min req'd range
+# with a grid-coarseness of 2-sig-digits
+# (For orig data where CI = (-21, 3),
+#  we stepped from -22 to 4 in integers.
+#  For latest data where CI = (-2.06, 0.08),
+#  we stepped from -2.1 to 0.1 in 0.05s.)
+# In practice there are probably cleverer ways to choose grid
+# (discreteness and endpoints)
+# e.g. by using z-test CI first and only searching NEAR its endpoints
+# without wasting time searching in their middle...
+# but still this seems like a MORE-THAN-FAIR chance for non-CIPerm approach.
+
+
+
+#### Speed tests on much larger dataset ####
+
+#  Try a different type of "large" example:
+#    when we're OK with small total nr of perms, eg nmc=1000,
+#    but the DATASET itself is huge,
+#    so that each individual perm takes a long time.
+#    (Much more like Duolingo context.)
+#    SO to do that, I'd have to also randomize within the new code...
+#    which now I've done (6/5/2022)
+
+
+set.seed(20220528)
+x <- rnorm(5e3, mean = 0, sd = 1)
+y <- rnorm(5e3, mean = 1, sd = 1)
+# I tried even bigger x & y vectors and larger nmc's,
+# but the naive.array code wouldn't run
+# ("Error: cannot allocate vector of size 7.8 Gb")
+# so this is around as big as I can get it
+# without tinkering further by using different n, m, and nmc's.
+
+
+# Actual CIPerm approach
+# (with nmc = 1e5 << choose(N,n))
+system.time({
+  print( cint(dset(x, y, nmc = 5e3),
+              conf.level = 0.95, tail = "Two") )
+})
+##  user  system elapsed
+## 8.423   0.308   7.855
+
+# Grid of around 20ish steps
+deltas <- ((-11*10):(-9*10))/100 # grid steps of 0.01
+
+# Naive with for-loops:
+system.time({
+  pvalmeans <- cint.naive.forloop(x, y, deltas, nmc= 5e3)$pvalmeans
+})
+##  user  system elapsed
+## 11.734   2.406  12.722
+
+# Naive with arrays:
+system.time({
+  pvalmeans <- cint.naive.array(x, y, deltas, nmc= 5e3)$pvalmeans
+})
+##  user  system elapsed
+## 17.631   4.216  19.683
+
