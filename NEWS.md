@@ -1,3 +1,7 @@
+# CIPerm 0.2.1.9002
+
+* Add `naive` vignette, which compares computation speeds of Nguyen's method vs a "naive" grid search.
+
 # CIPerm 0.2.1.9001
 
 * Update Nguyen (2009) links from URLs to DOIs.

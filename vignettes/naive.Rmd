@@ -1,3 +1,22 @@
+---
+title: "Comparing `CIPerm` with 'naive' approach"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{naive}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+We run simple timing comparisons to show how our package's approach from Nguyen (2009) compares with a "naive" grid-based search approach to confidence intervals from permutation methods.
+
+```{r}
 # Simulation to compare CIPerm's dset() and cint()
 # with a "naive" approach of grid search over plausible deltas
 
@@ -334,4 +353,5 @@ system.time({
 })
 ##  user  system elapsed
 ## 17.631   4.216  19.683
+```
 
