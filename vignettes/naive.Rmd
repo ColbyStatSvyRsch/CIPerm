@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 We run simple timing comparisons to show how our package's approach from Nguyen (2009) compares with a "naive" grid-based search approach to confidence intervals from permutation methods.
 
-```{r}
+```{r setup}
 # Simulation to compare CIPerm's dset() and cint()
 # with a "naive" approach of grid search over plausible deltas
 
@@ -38,9 +38,10 @@ library(CIPerm)
 #    so that each individual perm takes a long time.
 #    (Much more like Duolingo context.)
 #    BUT to do that, I'd have to also randomize within the new code.
+```
 
 
-
+```{r function-forloop}
 #### Define functions for "naive" approach(es) ####
 
 # Naive approach:
@@ -92,9 +93,9 @@ cint.naive.forloop <- function(x, y, deltas,
               pvalmeans = pvalmeans,
               deltas = deltas))
 }
+```
 
-
-
+```{r function-array, echo=FALSE, eval=FALSE}
 # Possible speedup:
 # Could we replace for-loop with something like manipulating a 3D array?
 # e.g., where we say
@@ -160,9 +161,10 @@ cint.naive.array <- function(x, y, deltas,
               pvalmeans = pvalmeans,
               deltas = deltas))
 }
+```
 
 
-
+```{r tests-tiny}
 #### Speed tests on Nguyen's tiny dataset ####
 
 # Use 1st tiny dataset from Nguyen's paper
@@ -191,9 +193,10 @@ plot(deltas, pvalmeans)
 abline(h = 0.05)
 abline(v = c(-21, 3), lty = 2)
 # Yes, it's as it should be :)
+```
 
 
-
+```{r test-tiny-array, echo=FALSE, eval=FALSE}
 # Naive approach with arrays:
 system.time({
   pvalmeans <- cint.naive.array(x, y, deltas)$pvalmeans
@@ -217,10 +220,11 @@ abline(v = c(-21, 3), lty = 2)
 # inside each step of the loop
 # since we can reuse the same ones for every value of deltas...
 # AND NOW it's FASTER than the array version???
+```
 
 
 
-
+```{r tests-larger}
 # Obvious next step is to try this for a LARGER dataset.
 choose(16,6)
 ## 8008
@@ -246,15 +250,9 @@ system.time({
 ##  user  system elapsed
 ## 0.516   0.001   0.516
 
+
 # Coarser grid
 deltas <- ((-21):(1))/10     # grid steps of 0.1
-
-# Naive with arrays:
-system.time({
-  pvalmeans <- cint.naive.array(x, y, deltas, nmc= 1e6)$pvalmeans
-})
-##  user  system elapsed
-## 1.080   0.098   1.177
 
 # Naive with for-loops:
 system.time({
@@ -263,20 +261,9 @@ system.time({
 ##  user  system elapsed
 ## 0.699   0.084   0.784
 
-# !!! Indeed it looks like naive.forloop
-# is FASTER than naive.array
-# now that I've removed the slow dcombn1 & dcombn2 creating from the loop.
-
 
 # Finer grid
 deltas <- ((-21*2):(1*2))/20 # grid steps of 0.05
-
-# Naive with arrays:
-system.time({
-  pvalmeans <- cint.naive.array(x, y, deltas, nmc= 1e6)$pvalmeans
-})
-##  user  system elapsed
-## 1.039   0.164   1.211
 
 # Naive with for-loops:
 system.time({
@@ -304,18 +291,47 @@ system.time({
 # e.g. by using z-test CI first and only searching NEAR its endpoints
 # without wasting time searching in their middle...
 # but still this seems like a MORE-THAN-FAIR chance for non-CIPerm approach.
+```
+
+```{r tests-larger-array, echo=FALSE, eval=FALSE}
+# Coarser grid
+deltas <- ((-21):(1))/10     # grid steps of 0.1
+
+# Naive with arrays:
+system.time({
+  pvalmeans <- cint.naive.array(x, y, deltas, nmc= 1e6)$pvalmeans
+})
+##  user  system elapsed
+## 1.080   0.098   1.177
+
+# !!! Indeed it looks like naive.forloop
+# is FASTER than naive.array
+# now that I've removed the slow dcombn1 & dcombn2 creating from the loop.
+
+
+# Finer grid
+deltas <- ((-21*2):(1*2))/20 # grid steps of 0.05
+
+# Naive with arrays:
+system.time({
+  pvalmeans <- cint.naive.array(x, y, deltas, nmc= 1e6)$pvalmeans
+})
+##  user  system elapsed
+## 1.039   0.164   1.211
+```
 
 
 
+```{r tests-largest}
 #### Speed tests on much larger dataset ####
 
 #  Try a different type of "large" example:
 #    when we're OK with small total nr of perms, eg nmc=1000,
 #    but the DATASET itself is huge,
 #    so that each individual perm takes a long time.
-#    (Much more like Duolingo context.)
+#    (Much more like edtech-startup context.)
 #    SO to do that, I'd have to also randomize within the new code...
-#    which now I've done (6/5/2022)
+#    which now I've done (as of 6/5/2022)
 
 
 set.seed(20220528)
@@ -346,7 +362,9 @@ system.time({
 })
 ##  user  system elapsed
 ## 11.734   2.406  12.722
+```
 
+```{r tests-largest-array, echo=FALSE, eval=FALSE}
 # Naive with arrays:
 system.time({
   pvalmeans <- cint.naive.array(x, y, deltas, nmc= 5e3)$pvalmeans
@@ -354,4 +372,3 @@ system.time({
 ##  user  system elapsed
 ## 17.631   4.216  19.683
 ```
-
