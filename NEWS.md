@@ -1,3 +1,7 @@
+# CIPerm 0.2.1.9003
+
+* Add `bench::mark()` and `profvis::profvis()` results to `naive` vignette
+
 # CIPerm 0.2.1.9002
 
 * Add `naive` vignette, which compares computation speeds of Nguyen's method vs a "naive" grid search.

@@ -40,6 +40,78 @@ library(CIPerm)
 #    BUT to do that, I'd have to also randomize within the new code.
 ```
 
+```{r function-nguyen}
+#### Define a streamlined function for Nguyen approach ####
+
+# We can use CIPerm's cint(dset(x, y)) directly,
+# and it already wins against the naive for-loop or array-based approaches.
+# But since dset and cint both have extra cruft built into them,
+# for a "fairer" comparison we recreate the core of cint(dset()) here
+# without all the extra variables and without passing copies of dataframes.
+
+
+# 1. use round(siglevel*num), if siglevel*num is basically an integer,
+#    to within the default numerical tolerance of all.equal();
+# 2. or otherwise use ceiling(siglevel*num) instead.
+roundOrCeiling <- function(x) {
+  ifelse(isTRUE(all.equal(round(x), x)), # is x==round(x) to numerical tolerance?
+         round(x),
+         ceiling(x))
+}
+
+
+cint.nguyen <- function(x, y, nmc = 10000, conf.level = 0.95) {
+  # Two-tailed CIs only, for now
+
+  sig <- 1 - conf.level
+
+  # Code copied/modified from within CIPerm::dset()
+  n <- length(x)
+  m <- length(y)
+  N <- n + m
+  num <- choose(N, n) # number of possible combinations
+  # Form a matrix where each column contains indices in new "group1" for that comb or perm
+  if(nmc == 0 | num <= nmc) { # take all possible combinations
+    dcombn1 <- utils::combn(1:N, n)
+  } else { # use Monte Carlo sample of permutations, not all possible combinations
+    dcombn1 <- replicate(nmc, sample(N, n))
+    dcombn1[,1] <- 1:n # force the 1st "combination" to be original data order
+    num <- nmc
+  }
+  # Form the equivalent matrix for indices in new "group2"
+  dcombn2 <- apply(dcombn1, 2, function(x) setdiff(1:N, x))
+
+  # Form the corresponding matrices of data values, not data indices
+  combined <- c(x, y)
+  group1_perm <- matrix(combined[dcombn1], nrow = n)
+  group2_perm <- matrix(combined[dcombn2], nrow = m)
+  # For each comb or perm, compute difference in group means, k, and w_{k,d}
+  diffmean <- colMeans(group1_perm) - colMeans(group2_perm)
+  k <- colSums(matrix(dcombn1 %in% ((n+1):N),
+                      nrow = n))
+  wkd <- (diffmean[1] - diffmean) / (k * (1/n + 1/m))
+
+  # Code copied/modified from within CIPerm::cint()
+  # Sort wkd values and find desired quantiles
+  w.i <- sort(wkd, decreasing = FALSE, na.last = FALSE)
+  siglevel <- (1 - conf.level)/2
+  index <- roundOrCeiling(siglevel*num) - 1
+  #   When dset's nmc leads us to use Monte Carlo sims,
+  #   we may get some permutations equivalent to orig data
+  #   i.e. we may get SEVERAL k=0 and therefore several w.i=NaN.
+  nk0 <- sum(k == 0)
+  # Start counting from (1+nk0)'th element of w.i
+  # (not the 1st, which will always be 'NaN' since k[1] is 0)
+  LB <- w.i[1 + nk0 + index]
+  UB <- w.i[(num - index)]
+
+  CI <- c(LB, UB)
+  conf.achieved <- 1 - (2*(index+1) / num)
+    message(paste0("Achieved conf. level: 1-2*(", index+1, "/", num, ")"))
+    return(list(conf.int = CI,
+                conf.level.achieved = conf.achieved))
+}
+```
 
 ```{r function-forloop}
 #### Define functions for "naive" approach(es) ####
@@ -178,6 +250,11 @@ system.time({
 ##  user  system elapsed
 ## 0.001   0.000   0.002
 
+# Streamlined version of CIPerm approach:
+system.time({
+  print( cint.nguyen(x, y, conf.level = 0.95) )
+})
+
 # Naive approach with for-loops:
 deltas <- ((-22):4)
 system.time({
@@ -250,13 +327,17 @@ system.time({
 ##  user  system elapsed
 ## 0.516   0.001   0.516
 
+# Streamlined version of CIPerm approach:
+system.time({
+  print( cint.nguyen(x, y, conf.level = 0.95) )
+})
 
 # Coarser grid
 deltas <- ((-21):(1))/10     # grid steps of 0.1
 
 # Naive with for-loops:
 system.time({
-  pvalmeans <- cint.naive.forloop(x, y, deltas, nmc= 1e6)$pvalmeans
+  pvalmeans <- cint.naive.forloop(x, y, deltas, nmc = 1e6)$pvalmeans
 })
 ##  user  system elapsed
 ## 0.699   0.084   0.784
@@ -267,7 +348,7 @@ deltas <- ((-21*2):(1*2))/20 # grid steps of 0.05
 
 # Naive with for-loops:
 system.time({
-  pvalmeans <- cint.naive.forloop(x, y, deltas, nmc= 1e6)$pvalmeans
+  pvalmeans <- cint.naive.forloop(x, y, deltas, nmc = 1e6)$pvalmeans
 })
 ##  user  system elapsed
 ## 0.777   0.071   0.846
@@ -299,7 +380,7 @@ deltas <- ((-21):(1))/10     # grid steps of 0.1
 
 # Naive with arrays:
 system.time({
-  pvalmeans <- cint.naive.array(x, y, deltas, nmc= 1e6)$pvalmeans
+  pvalmeans <- cint.naive.array(x, y, deltas, nmc = 1e6)$pvalmeans
 })
 ##  user  system elapsed
 ## 1.080   0.098   1.177
@@ -314,7 +395,7 @@ deltas <- ((-21*2):(1*2))/20 # grid steps of 0.05
 
 # Naive with arrays:
 system.time({
-  pvalmeans <- cint.naive.array(x, y, deltas, nmc= 1e6)$pvalmeans
+  pvalmeans <- cint.naive.array(x, y, deltas, nmc = 1e6)$pvalmeans
 })
 ##  user  system elapsed
 ## 1.039   0.164   1.211
@@ -340,35 +421,75 @@ y <- rnorm(5e3, mean = 1, sd = 1)
 # I tried even bigger x & y vectors and larger nmc's,
 # but the naive.array code wouldn't run
 # ("Error: cannot allocate vector of size 7.8 Gb")
-# so this is around as big as I can get it
-# without tinkering further by using different n, m, and nmc's.
-
+# when I used more than around 5e3...
+# However, now that I've removed the array version (6/8/22),
+# the real CIPerm and the naive.forloop code *can* handle larger ones...
+# but it doesn't seem to make much impact on the relative timing diffs.
 
 # Actual CIPerm approach
 # (with nmc = 1e5 << choose(N,n))
 system.time({
-  print( cint(dset(x, y, nmc = 5e3),
+  print( cint(dset(x, y, nmc = 2e3),
               conf.level = 0.95, tail = "Two") )
 })
-##  user  system elapsed
-## 8.423   0.308   7.855
+##    user  system elapsed 
+##   8.65    1.69   10.35
+
+# Streamlined version of CIPerm approach:
+system.time({
+  print( cint.nguyen(x, y, nmc = 2e3, conf.level = 0.95) )
+})
+##    user  system elapsed 
+##   6.94    1.53    8.48
 
 # Grid of around 20ish steps
 deltas <- ((-11*10):(-9*10))/100 # grid steps of 0.01
+# deltas <- ((-1000*1):(-980*1))/1000 # grid steps of 0.001
 
 # Naive with for-loops:
 system.time({
-  pvalmeans <- cint.naive.forloop(x, y, deltas, nmc= 5e3)$pvalmeans
+  pvalmeans <- cint.naive.forloop(x, y, deltas, nmc = 2e3)$pvalmeans
 })
-##  user  system elapsed
-## 11.734   2.406  12.722
+##    user  system elapsed 
+##  14.14    7.30   21.45
 ```
 
 ```{r tests-largest-array, echo=FALSE, eval=FALSE}
 # Naive with arrays:
 system.time({
-  pvalmeans <- cint.naive.array(x, y, deltas, nmc= 5e3)$pvalmeans
+  pvalmeans <- cint.naive.array(x, y, deltas, nmc = 2e3)$pvalmeans
 })
 ##  user  system elapsed
 ## 17.631   4.216  19.683
 ```
+
+
+We also tried using `bench::mark()` to summarize several runtimes together, as well as memory usage. (Not actually run when the vignette knits, in order to avoid needing `bench` as a dependency.)
+
+```{r tests-largest-benchmark}
+# bench::mark(cint.nguyen(x, y, nmc = 2e3),
+#             cint.naive.forloop(x, y, deltas, nmc = 2e3),
+#             check = FALSE, min_iterations = 10)
+#> # A tibble: 2 × 13
+#>   expression                                        min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time result memory                  time            gc               
+#>   <bch:expr>                                   <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm> <list> <list>                  <list>          <list>           
+#> 1 cint.nguyen(x, y, nmc = 2000)                    2.5s    2.71s     0.364    1.58GB     2.92    10    80     27.44s <NULL> <Rprofmem [32,057 × 3]> <bench_tm [10]> <tibble [10 × 3]>
+#> 2 cint.naive.forloop(x, y, deltas, nmc = 2000)    7.87s    8.07s     0.120     7.4GB     4.64    10   388      1.39m <NULL> <Rprofmem [32,256 × 3]> <bench_tm [10]> <tibble [10 × 3]>
+
+```
+
+Finally, we also tried using the `profvis` package to check what steps are taking the longest time:
+```{r tests-largest-profvis}
+# profvis::profvis(cint.nguyen(x, y, nmc = 2e3))
+# profvis::profvis(cint.naive.forloop(x, y, deltas, nmc = 2e3))
+```
+
+For Nguyen's method, the initial setup with `combn()` or `sample()` followed by `apply(setdiff())` takes about 80% of the time, and the per-permutation calculations only take about 20% of the time:  
+`profvis::profvis(cint.nguyen(x, y, nmc = 2e3))`
+
+![](profvis_nguyen.png)
+
+For the naive method, the initial setup is identical, and each round of per-permutation calculations is slightly faster than in Nguyen's method... but because you have to repeat them many times (*unless you already know the CI endpoints, in which case you wouldn't need to run this at all!*), they can add up to substantially more total time than for Nguyen's method.  
+`profvis::profvis(cint.naive.forloop(x, y, deltas, nmc = 2e3))`
+
+![](profvis_naive.png)

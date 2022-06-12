@@ -1,8 +1,8 @@
 Package: CIPerm
 Type: Package
 Title: Computationally-Efficient Confidence Intervals for Mean Shift from Permutation Methods
-Version: 0.2.1.9002
-Date: 2022-06-08
+Version: 0.2.1.9003
+Date: 2022-06-11
 Authors@R: c(
     person("Emily", "Tupaj", role = "aut"),
     person("Jerzy", "Wieczorek", email = "jawieczo@colby.edu", role = c("cre", "aut"),
