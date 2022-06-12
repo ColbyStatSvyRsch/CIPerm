@@ -1,3 +1,7 @@
+# CIPerm 0.2.1.9004
+
+* Add useR! 2022 conference poster to `data-raw` folder.
+
 # CIPerm 0.2.1.9003
 
 * Add `bench::mark()` and `profvis::profvis()` results to `naive` vignette

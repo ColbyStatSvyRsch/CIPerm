@@ -12,6 +12,8 @@ See the `nguyen` vignette for a brief summary of the method and for our replicat
 
 Note that our R function arguments and outputs are structured differently than the similarly-named R functions in Nguyen (2009), but the results are equivalent.
 
+A copy of our [useR! 2022 conference](https://user2022.r-project.org/) poster about the package is in our GitHub repo, in the [`data-raw` folder](https://github.com/ColbyStatSvyRsch/CIPerm/tree/master/data-raw).
+
 ## Installation
 
 Install a stable version of the package from [CRAN](https://cran.r-project.org/package=CIPerm):
