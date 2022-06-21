@@ -21,7 +21,7 @@ We show that our package replicates the analyses in:
 Reference Distribution and their Monte-Carlo Approximation"
 [unpublished MS thesis; Mara Tableman, advisor], Portland State University.
 *Dissertations and Theses*. Paper 5927.
-[DOI:10.15760/etd.7798](http://doi.org/10.15760/etd.7798).
+[DOI:10.15760/etd.7798](https://doi.org/10.15760/etd.7798).
 
 Note that our R function arguments and outputs are structured differently than the similarly-named R functions in Nguyen (2009), but the results are equivalent.
 

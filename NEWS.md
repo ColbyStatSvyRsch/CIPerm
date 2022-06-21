@@ -1,3 +1,7 @@
+# CIPerm 0.2.3
+
+* Fix typo in URLs.
+
 # CIPerm 0.2.2
 
 * Update Nguyen (2009) links from URLs to DOIs.
