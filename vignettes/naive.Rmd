@@ -14,41 +14,20 @@ knitr::opts_chunk$set(
 )
 ```
 
-We run simple timing comparisons to show how our package's approach from Nguyen (2009) compares with a "naive" grid-based search approach to confidence intervals from permutation methods.
+We run simple timing comparisons to show how our package's approach with Nguyen (2009) compares against a "naive" grid-based search approach to confidence intervals from permutation methods.
 
-```{r setup}
-# Simulation to compare CIPerm's dset() and cint()
-# with a "naive" approach of grid search over plausible deltas
+# Defining streamlined functions
 
-library(CIPerm)
+We can use `CIPerm`'s `cint(dset(x, y))` directly,
+and it already wins against the naive for-loop or array-based approaches.
+But since `dset` and `cint` both have extra cruft built into them,
+for an even "fairer" comparison we recreate the core of `cint(dset())` here
+without all the extra variables and without passing copies of dataframes.
 
-# 5/28/2022
-# It works! For tiny datasets,
-#   CIPerm is just barely faster than alternatives
-# but for larger datasets, where total nr perms is in the 10k's,
-#   CIPerm is MUCH faster than for-loop "naive",
-#   and still substantially faster than "optimized-naive" using arrays.
-# ...
-# TODO:
-# 1) Confirm with microbenchmark() these results,
-#    where each perm is fast but there's a lot of them.
-# 2) Try a different type of "large" example:
-#    when we're OK with small total nr of perms, eg nmc=1000,
-#    but the DATASET itself is huge,
-#    so that each individual perm takes a long time.
-#    (Much more like Duolingo context.)
-#    BUT to do that, I'd have to also randomize within the new code.
-```
+First we re-define the internal function `roundOrCeiling()`, then we define a streamlined `cint.nguyen()`:
 
 ```{r function-nguyen}
 #### Define a streamlined function for Nguyen approach ####
-
-# We can use CIPerm's cint(dset(x, y)) directly,
-# and it already wins against the naive for-loop or array-based approaches.
-# But since dset and cint both have extra cruft built into them,
-# for a "fairer" comparison we recreate the core of cint(dset()) here
-# without all the extra variables and without passing copies of dataframes.
-
 
 # 1. use round(siglevel*num), if siglevel*num is basically an integer,
 #    to within the default numerical tolerance of all.equal();
@@ -58,7 +37,6 @@ roundOrCeiling <- function(x) {
          round(x),
          ceiling(x))
 }
-
 
 cint.nguyen <- function(x, y, nmc = 10000, conf.level = 0.95) {
   # Two-tailed CIs only, for now
@@ -113,14 +91,16 @@ cint.nguyen <- function(x, y, nmc = 10000, conf.level = 0.95) {
 }
 ```
 
-```{r function-forloop}
-#### Define functions for "naive" approach(es) ####
+Next, we define an equivalent function to implement the "naive" approach: 
 
-# Naive approach:
-# Choose a grid of possible values of delta = mu_X-mu_Y to try...
-# For each delta,
-# subtract delta off of the x's
-# and carry out a test of H_0: mu_X=mu_Y on the resulting data
+* Choose a grid of possible values of delta = mu_X-mu_Y to try
+* For each delta...
+    - subtract delta off of the x's,
+    - and carry out a test of H_0: mu_X=mu_Y on the resulting data
+* Our confidence interval consists of the range of delta values for which H_0 is NOT rejected
+
+```{r function-forloop}
+#### Define a function for "naive" approach with for-loop ####
 
 cint.naive.forloop <- function(x, y, deltas,
                                nmc = 10000,
@@ -167,7 +147,14 @@ cint.naive.forloop <- function(x, y, deltas,
 }
 ```
 
+We also wrote another "naive" function that avoids for-loops and takes a "vectorized" approach instead. We created large arrays: each permutation requires a matrix, and the 3rd array dimension is over permutations. Then `apply` and `colSums` work very quickly to carry out all the per-permutations steps on this array at once. However, we found that unless datasets were trivally small, creating and storing the array took a lot of time and memory, and it ended up far slower than the for-loop approach. Consequently we do not report this function or its results here, although curious readers can find it hidden in the vignette's .Rmd file.
+
 ```{r function-array, echo=FALSE, eval=FALSE}
+## THIS FUNCTION ALSO WORKS,
+## BUT REQUIRES SUBSTANTIALLY MORE MEMORY THAN THE PREVIOUS ONE
+## AND IS SLOWER FOR LARGE DATASETS,
+## SO WE LEFT IT OUT OF THE COMPARISONS
+
 # Possible speedup:
 # Could we replace for-loop with something like manipulating a 3D array?
 # e.g., where we say
@@ -235,20 +222,24 @@ cint.naive.array <- function(x, y, deltas,
 }
 ```
 
+# Speed tests
+
+## Tiny dataset
+
+When we compare the timings, `cint.naive()` will need to have a reasonable search grid for values of `delta`. On this problem, we happen to know the correct CI endpoints are the integers `(-21, 3)`, so we "cheat" by using `(-22):4` as the grid for `cint.naive()`. Of course in practice, if you had only the naive approach, you would probably have to try a wider grid, since you wouldn't already know the answer.
 
 ```{r tests-tiny}
 #### Speed tests on Nguyen's tiny dataset ####
 
 # Use 1st tiny dataset from Nguyen's paper
+library(CIPerm)
 x <- c(19, 22, 25, 26)
 y <- c(23, 33, 40)
 
-# Actual CIPerm approach:
+# Actual CIPerm package's approach:
 system.time({
   print( cint(dset(x, y), conf.level = 0.95, tail = "Two") )
 })
-##  user  system elapsed
-## 0.001   0.000   0.002
 
 # Streamlined version of CIPerm approach:
 system.time({
@@ -260,10 +251,9 @@ deltas <- ((-22):4)
 system.time({
   pvalmeans <- cint.naive.forloop(x, y, deltas)$pvalmeans
 })
-##  user  system elapsed
-## 0.024   0.000   0.023
 
-# Sanity check: are the p-vals always higher when closer to middle of CI?
+# Sanity check to debug `cint.naive`:
+# are the p-vals always higher when closer to middle of CI?
 # Are they always above 0.05 inside and below it outside CI?
 cbind(deltas, pvalmeans)
 plot(deltas, pvalmeans)
@@ -272,14 +262,15 @@ abline(v = c(-21, 3), lty = 2)
 # Yes, it's as it should be :)
 ```
 
+Above we see timings for the original `CIPerm::cint(dset))`, its streamlined version`cint.nguyen()`, and the naive equivalent `cint.naive()`.  
+In the case of a tiny dataset like this, all 3 approaches take almost no time. So it can be a tossup as to which one is fastest on this example.
+
 
 ```{r test-tiny-array, echo=FALSE, eval=FALSE}
 # Naive approach with arrays:
 system.time({
   pvalmeans <- cint.naive.array(x, y, deltas)$pvalmeans
 })
-##  user  system elapsed
-## 0.023   0.001   0.022
 
 # Sanity check again:
 cbind(deltas, pvalmeans)
@@ -296,40 +287,38 @@ abline(v = c(-21, 3), lty = 2)
 # I changed the for-loop approach to stop creating dcombn1 & dcombn2
 # inside each step of the loop
 # since we can reuse the same ones for every value of deltas...
-# AND NOW it's FASTER than the array version???
+# AND NOW it's FASTER than the array version,
+# even for tiny datasets!
+# And later we'll see that array version is unbearably slow
+# for large datasets where it takes forever
+# to create & store these massive arrays...
+# So it's not worth reporting in the final vignette :(
 ```
 
+## Larger dataset
 
+Try a slightly larger dataset, where the total number of permutations is above the default `nmc=10000` but still manageable on a laptop.
+
+Again, `cint.naive()` will need to have a reasonable search grid for values of `delta`. This time again we will set up a grid that just barely covers the correct endpoints from `cint.nguyen()`, and again we'll try to keep it at around 20 to 25 grid points in all. Then we'll try timing it again with a slightly finer grid.
 
 ```{r tests-larger}
-# Obvious next step is to try this for a LARGER dataset.
-choose(16,6)
-## 8008
-# This is pretty close to the default nmc=10k
-# ...
-# BUT
-# We could also force non-MC by setting dset(..., nmc) higher.
-# So let's do a larger dataset after all.
-choose(18, 9)
-## 48620
+choose(18, 9) ## 48620
 set.seed(20220528)
 x <- rnorm(9, mean = 0, sd = 1)
 y <- rnorm(9, mean = 1, sd = 1)
 
-
-
 # Actual CIPerm approach
-# (with nmc = 1e6 >> choose(N,n))
+# (with nmc = 0,
+#  so that we use ALL of the choose(N,n) combinations
+#  instead of a MC sample of permutations)
 system.time({
-  print( cint(dset(x, y, nmc = 1e6),
+  print( cint(dset(x, y, nmc = 0),
               conf.level = 0.95, tail = "Two") )
 })
-##  user  system elapsed
-## 0.516   0.001   0.516
 
 # Streamlined version of CIPerm approach:
 system.time({
-  print( cint.nguyen(x, y, conf.level = 0.95) )
+  print( cint.nguyen(x, y, nmc = 0, conf.level = 0.95) )
 })
 
 # Coarser grid
@@ -337,10 +326,8 @@ deltas <- ((-21):(1))/10     # grid steps of 0.1
 
 # Naive with for-loops:
 system.time({
-  pvalmeans <- cint.naive.forloop(x, y, deltas, nmc = 1e6)$pvalmeans
+  pvalmeans <- cint.naive.forloop(x, y, deltas, nmc = 0)$pvalmeans
 })
-##  user  system elapsed
-## 0.699   0.084   0.784
 
 
 # Finer grid
@@ -348,31 +335,19 @@ deltas <- ((-21*2):(1*2))/20 # grid steps of 0.05
 
 # Naive with for-loops:
 system.time({
-  pvalmeans <- cint.naive.forloop(x, y, deltas, nmc = 1e6)$pvalmeans
+  pvalmeans <- cint.naive.forloop(x, y, deltas, nmc = 0)$pvalmeans
 })
-##  user  system elapsed
-## 0.777   0.071   0.846
-
-# Okay! Now it looks much better:
-# (for the finer grid)
-## CIPerm:    0.5 sec
-## For-loop:  0.8 sec
-## Arrays:    1.2 sec
-# AND that's with the "cheat" of using CIPerm
-# to get the "right" CI limits
-# so our grid search isn't too wide,
-# just stepping over the min req'd range
-# with a grid-coarseness of 2-sig-digits
-# (For orig data where CI = (-21, 3),
-#  we stepped from -22 to 4 in integers.
-#  For latest data where CI = (-2.06, 0.08),
-#  we stepped from -2.1 to 0.1 in 0.05s.)
-# In practice there are probably cleverer ways to choose grid
-# (discreteness and endpoints)
-# e.g. by using z-test CI first and only searching NEAR its endpoints
-# without wasting time searching in their middle...
-# but still this seems like a MORE-THAN-FAIR chance for non-CIPerm approach.
 ```
+
+Now, `CIPerm::cint(dset())` and the `cint.nguyen` approach take about the same amount of time, and they are noticeably faster than the `cint.naive` approach. (And even more so when we use a finer search grid.) That happens even with the "cheat" of using `CIPerm` first to find the right CI limits so that our naive search grid isn't too wide, just stepping over the minimal required range with a reasonable grid-coarseness.
+
+(For the original data where CI = (-21, 3), we stepped from -22 to 4 in integers.
+For latest data where CI = (-2.06, 0.08),
+we stepped from -2.1 to 0.1 in units of 0.1 and then 0.05.)
+
+In practice there are probably cleverer ways for the naive method to choose grid discreteness and endpoints...
+but still, this seems like a more-than-fair chance for the naive approach.
+
 
 ```{r tests-larger-array, echo=FALSE, eval=FALSE}
 # Coarser grid
@@ -382,8 +357,6 @@ deltas <- ((-21):(1))/10     # grid steps of 0.1
 system.time({
   pvalmeans <- cint.naive.array(x, y, deltas, nmc = 1e6)$pvalmeans
 })
-##  user  system elapsed
-## 1.080   0.098   1.177
 
 # !!! Indeed it looks like naive.forloop
 # is FASTER than naive.array
@@ -397,61 +370,49 @@ deltas <- ((-21*2):(1*2))/20 # grid steps of 0.05
 system.time({
   pvalmeans <- cint.naive.array(x, y, deltas, nmc = 1e6)$pvalmeans
 })
-##  user  system elapsed
-## 1.039   0.164   1.211
 ```
 
 
+## Largest dataset
+
+Try an even larger example,
+where we're OK with a smallish total number of permutations (eg `nmc=10000`),
+but the dataset itself is "huge",
+so that each individual permutation takes a longer time.
+
+We still don't make it all that large, since we want this vignette to knit in a reasonable time. But we've seen similar results when we made even-larger datasets that took longer to run.
+
+
+Once again, for `cint.naive()` we will set up a search grid that just barely covers the correct endpoints from `cint.nguyen()`, and again we'll try to keep it at around 20 to 25 grid points in all.
 
 ```{r tests-largest}
 #### Speed tests on much larger dataset ####
 
-#  Try a different type of "large" example:
-#    when we're OK with small total nr of perms, eg nmc=1000,
-#    but the DATASET itself is huge,
-#    so that each individual perm takes a long time.
-#    (Much more like edtech-startup context.)
-#    SO to do that, I'd have to also randomize within the new code...
-#    which now I've done (as of 6/5/2022)
-
-
 set.seed(20220528)
 x <- rnorm(5e3, mean = 0, sd = 1)
 y <- rnorm(5e3, mean = 1, sd = 1)
-# I tried even bigger x & y vectors and larger nmc's,
-# but the naive.array code wouldn't run
-# ("Error: cannot allocate vector of size 7.8 Gb")
-# when I used more than around 5e3...
-# However, now that I've removed the array version (6/8/22),
-# the real CIPerm and the naive.forloop code *can* handle larger ones...
-# but it doesn't seem to make much impact on the relative timing diffs.
 
 # Actual CIPerm approach
-# (with nmc = 1e5 << choose(N,n))
+# (with nmc = 2000 << choose(N,n),
+#  so it only takes a MC sample of permutations
+#  instead of running all possible combinations)
 system.time({
   print( cint(dset(x, y, nmc = 2e3),
               conf.level = 0.95, tail = "Two") )
 })
-##    user  system elapsed 
-##   8.65    1.69   10.35
 
 # Streamlined version of CIPerm approach:
 system.time({
   print( cint.nguyen(x, y, nmc = 2e3, conf.level = 0.95) )
 })
-##    user  system elapsed 
-##   6.94    1.53    8.48
 
 # Grid of around 20ish steps
 deltas <- ((-11*10):(-9*10))/100 # grid steps of 0.01
-# deltas <- ((-1000*1):(-980*1))/1000 # grid steps of 0.001
 
 # Naive with for-loops:
 system.time({
   pvalmeans <- cint.naive.forloop(x, y, deltas, nmc = 2e3)$pvalmeans
 })
-##    user  system elapsed 
-##  14.14    7.30   21.45
 ```
 
 ```{r tests-largest-array, echo=FALSE, eval=FALSE}
@@ -459,12 +420,17 @@ system.time({
 system.time({
   pvalmeans <- cint.naive.array(x, y, deltas, nmc = 2e3)$pvalmeans
 })
-##  user  system elapsed
-## 17.631   4.216  19.683
 ```
 
+Here we finally see that the overhead built into `CIPerm::cint(dset())` makes it slightly slower than the streamlined `cint.nguyen()`. However, both are *substantially* faster than `cint.naive()`---they run in less than half the time of the naive approach.
 
-We also tried using `bench::mark()` to summarize several runtimes together, as well as memory usage. (Not actually run when the vignette knits, in order to avoid needing `bench` as a dependency.)
+
+# `bench::mark()` and `profvis`
+
+The results above are from one run per method on each example dataset.
+
+Using the last ("largest") dataset, we also tried using `bench::mark()` to summarize the distribution of runtimes over many runs, as well as memory usage.  
+*(Not actually run when the vignette knits, in order to avoid needing `bench` as a dependency.)*
 
 ```{r tests-largest-benchmark}
 # bench::mark(cint.nguyen(x, y, nmc = 2e3),
@@ -478,7 +444,9 @@ We also tried using `bench::mark()` to summarize several runtimes together, as w
 
 ```
 
-Finally, we also tried using the `profvis` package to check what steps are taking the longest time:
+Finally, we also tried using the `profvis` package to check what steps are taking the longest time.  
+*(Again, not actually run when the vignette knits, in order to avoid needing `profvis` as a dependency; but screenshots are included below.)*
+
 ```{r tests-largest-profvis}
 # profvis::profvis(cint.nguyen(x, y, nmc = 2e3))
 # profvis::profvis(cint.naive.forloop(x, y, deltas, nmc = 2e3))

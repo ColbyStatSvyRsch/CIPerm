@@ -1,3 +1,7 @@
+# CIPerm 0.2.1.9005
+
+* Cleaned up `naive` vignette. Cited conference poster in README.
+
 # CIPerm 0.2.1.9004
 
 * Add useR! 2022 conference poster to `data-raw` folder.

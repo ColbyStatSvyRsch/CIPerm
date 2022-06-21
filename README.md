@@ -5,7 +5,7 @@
 [![CRAN downloads](https://cranlogs.r-pkg.org/badges/CIPerm?color=5f810e)](https://cran.r-project.org/package=CIPerm)
 <!-- badges: end -->
 
-This R package implements computationally-efficient construction of confidence intervals from permutation tests or randomization tests for simple differences in means. In other words, if we set up a permutation or randomization test to evaluate $H_0: \mu_A - \mu_B = 0$, how do we use those same permutations to cheaply construct a CI for the $(\mu_A - \mu_B)$ parameter?
+This R package implements computationally-efficient construction of confidence intervals from permutation tests or randomization tests for simple differences in means. In other words, if we set up a permutation or randomization test to evaluate $H_0: \mu_A - \mu_B = 0$ then how can we use those same permutations to cheaply construct a CI for the $(\mu_A - \mu_B)$ parameter?
 
 The method is based on Minh D. Nguyen's 2009 MS thesis paper, "Nonparametric Inference using Randomization and Permutation Reference Distribution and their Monte-Carlo Approximation," http://doi.org/10.15760/etd.7798.
 See the `nguyen` vignette for a brief summary of the method and for our replication of Nguyen's results.
@@ -56,6 +56,8 @@ pval(dset = demo, tail = "Left", value = "w")
 #> [1] 0.1142857
 ```
 
+See also our `naive` vignette for timing comparisons of Nguyen's one-pass method. In the "naive" approach, you would run many separate permutation tests with different null values for $(\mu_A - \mu_B)$, and your CI would consist of those values where the null hypothesis was not rejected. The vignette shows that if you need to check more than a few null values and your dataset isn't trivally small, Nguyen's method can be considerably faster than the naive approach.
+
 ## References
 
 Ernst, M.D. (2004).
@@ -69,3 +71,8 @@ Reference Distribution and their Monte-Carlo Approximation"
 [unpublished MS thesis; Mara Tableman, advisor], Portland State University.
 *Dissertations and Theses*. Paper 5927.
 [DOI:10.15760/etd.7798](http://doi.org/10.15760/etd.7798).
+
+Tupaj, E. and Wieczorek, J. (2022).
+"`CIPerm`: An R Package for Computationally Efficient Confidence Intervals from Permutation Test,"
+poster presented at the useR! Conference, held virtually, June 22, 2022.
+https://user2022.r-project.org/program/posters/
