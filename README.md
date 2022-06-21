@@ -57,7 +57,7 @@ pval(dset = demo, tail = "Left", value = "w")
 #> [1] 0.1142857
 ```
 
-See also our `naive` vignette for timing comparisons of Nguyen's one-pass method. In the "naive" approach, you would run many separate permutation tests with different null values for $(\mu_A - \mu_B)$, and your CI would consist of those values where the null hypothesis was not rejected. The vignette shows that if you need to check more than a few null values and your dataset isn't trivally small, Nguyen's method can be considerably faster than the naive approach.
+See also our `naive` vignette for timing comparisons of Nguyen's one-pass method. In the "naive" approach, you would run many separate permutation tests with different null values for $(\mu_A - \mu_B)$, and your CI would consist of those values where the null hypothesis was not rejected. The vignette shows that if you need to check more than a few null values and your dataset isn't trivially small, Nguyen's method can be considerably faster than the naive approach.
 
 ## References
 

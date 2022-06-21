@@ -147,7 +147,7 @@ cint.naive.forloop <- function(x, y, deltas,
 }
 ```
 
-We also wrote another "naive" function that avoids for-loops and takes a "vectorized" approach instead. We created large arrays: each permutation requires a matrix, and the 3rd array dimension is over permutations. Then `apply` and `colSums` work very quickly to carry out all the per-permutations steps on this array at once. However, we found that unless datasets were trivally small, creating and storing the array took a lot of time and memory, and it ended up far slower than the for-loop approach. Consequently we do not report this function or its results here, although curious readers can find it hidden in the vignette's .Rmd file.
+We also wrote another "naive" function that avoids for-loops and takes a "vectorized" approach instead. We created large arrays: each permutation requires a matrix, and the 3rd array dimension is over permutations. Then `apply` and `colSums` work very quickly to carry out all the per-permutations steps on this array at once. However, we found that unless datasets were trivially small, creating and storing the array took a lot of time and memory, and it ended up far slower than the for-loop approach. Consequently we do not report this function or its results here, although curious readers can find it hidden in the vignette's .Rmd file.
 
 ```{r function-array, echo=FALSE, eval=FALSE}
 ## THIS FUNCTION ALSO WORKS,
