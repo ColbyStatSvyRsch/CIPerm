@@ -1,3 +1,7 @@
+# CIPerm 0.2.3.9000
+
+* Placeholder for next development version.
+
 # CIPerm 0.2.3
 
 * Fix typo in URLs.
