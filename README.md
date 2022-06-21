@@ -5,7 +5,8 @@
 [![CRAN downloads](https://cranlogs.r-pkg.org/badges/CIPerm?color=5f810e)](https://cran.r-project.org/package=CIPerm)
 <!-- badges: end -->
 
-This R package implements computationally-efficient construction of confidence intervals from permutation tests or randomization tests for simple differences in means. In other words, if we set up a permutation or randomization test to evaluate $H_0: \mu_A - \mu_B = 0$ then how can we use those same permutations to cheaply construct a CI for the $(\mu_A - \mu_B)$ parameter?
+This R package implements computationally-efficient construction of confidence intervals from permutation tests or randomization tests for simple differences in means. In other words, if we set up a permutation or randomization test to evaluate $H_0: \mu_A - \mu_B = 0$,
+then how can we use that same single set of permutations to cheaply construct a CI for the $(\mu_A - \mu_B)$ parameter?
 
 The method is based on Minh D. Nguyen's 2009 MS thesis paper, "Nonparametric Inference using Randomization and Permutation Reference Distribution and their Monte-Carlo Approximation," http://doi.org/10.15760/etd.7798.
 See the `nguyen` vignette for a brief summary of the method and for our replication of Nguyen's results.

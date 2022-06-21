@@ -1,23 +1,9 @@
-# CIPerm 0.2.1.9005
-
-* Cleaned up `naive` vignette. Cited conference poster in README.
-
-# CIPerm 0.2.1.9004
-
-* Add useR! 2022 conference poster to `data-raw` folder.
-
-# CIPerm 0.2.1.9003
-
-* Add `bench::mark()` and `profvis::profvis()` results to `naive` vignette
-
-# CIPerm 0.2.1.9002
-
-* Add `naive` vignette, which compares computation speeds of Nguyen's method vs a "naive" grid search.
-
-# CIPerm 0.2.1.9001
+# CIPerm 0.2.2
 
 * Update Nguyen (2009) links from URLs to DOIs.
-* Add URL and BugReports to DESCRIPTION.
+* Add package URL and BugReports to DESCRIPTION.
+* Add `naive` vignette, which compares computation speeds of Nguyen's method vs a "naive" grid search.
+* Add useR! 2022 conference poster to `data-raw` folder. Cite conference poster in README.
 
 # CIPerm 0.2.1
 
